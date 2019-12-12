@@ -7,7 +7,8 @@ out = ['''
   <STYLE>
     .pieces img { padding: 5px; border: solid black; }
     img { margin: 10px; }
-    .halfgrid { outline: red solid; }
+    .halfgrid, .tall { outline: red solid; }
+    .unstable { outline: orange solid; }
   </STYLE>
 ''']
 
@@ -33,21 +34,52 @@ for font in fonts
     text = fs.readFileSync pathname, encoding: 'utf8'
     lines = text.split '\n'
     lines.pop() if lines[lines.length-1] == ''
+
+    classes = []
+    if lines.length not in [8, 16]
+      classes.push 'tall'
     if lines.length > 9
-      console.assert lines.length == 16, "#{pathname} not 16 lines"
-      suffix = ' height="80" class="halfgrid"'
+      suffix = ' height="80"'
+      classes.push 'halfgrid'
     else
-      console.assert lines.length in [8, 9], "#{pathname} not 8 or 9 lines"
       suffix = ''
       pieceSuffix = ''
+
+    stable = {}
+    frontier = []
+    for j in [0...lines[lines.length-1].length]
+      frontier.push [lines.length, j]
+    while frontier.length
+      [i, j] = frontier.pop()
+      continue if [i, j] of stable
+      stable[[i, j]] = true
+      if i >= 0
+        if lines[i-1]?[j] not in [' ', undefined]
+          frontier.push [i-1, j]
+      if lines[i]?[j-1] == lines[i]?[j] != undefined
+        frontier.push [i, j-1]
+      if lines[i]?[j+1] == lines[i]?[j] != undefined
+        frontier.push [i, j+1]
+      if lines[i+1]?[j] == lines[i]?[j] != undefined
+        frontier.push [i+1, j]
+    unstable = false
+    for line, i in lines
+      for char, j in line
+        if char != ' ' and not stable[[i,j]]
+          unstable = true
+    classes.push 'unstable' if unstable
+
+    if classes.length
+      suffix += " class=\"#{classes.join ' '}\""
     letters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>"""
+
     for piece, pieceOut of pieces
       size =
         switch piece
           when 'O' then 2
           when 'I' then 4
           else 3
-      if suffix
+      if 'halfgrid' in classes
         pieceSuffix = """ style="max-height: #{size*10}; max-width: #{size*10}\""""
       pieceOut.push """<img title="#{letter}"#{space} src="#{font.dirname.replace 'font', 'pieces'}/#{piece}/#{letter}.svg"#{pieceSuffix}>"""
   out.push '\n</div>\n'
