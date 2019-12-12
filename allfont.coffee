@@ -19,6 +19,9 @@ fonts = [
 
 for font in fonts
   out.push "\n<H1>#{font.title}</H1>\n"
+  out.push "<H2>Current Selection</H2>\n"
+  out.push bestLetters = []
+  out.push "\n<H2>Alternatives</H2>\n"
   out.push letters = []
   out.push '\n<div class="pieces">'
   pieces = {}
@@ -72,6 +75,7 @@ for font in fonts
     if classes.length
       suffix += " class=\"#{classes.join ' '}\""
     letters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>"""
+    bestLetters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>""" if letter.length == 1
 
     for piece, pieceOut of pieces
       size =
