@@ -179,3 +179,13 @@ window?.onload = ->
 
   window.addEventListener 'resize', resize
   resize()
+
+  for pieceName, piece of window.pieces
+    width = Math.max ...(x for [x,y] in piece.polygon)
+    height = Math.max ...(y for [x,y] in piece.polygon)
+    x = SVG().addTo "#piece#{pieceName}"
+    .viewbox -0.1, -0.1, width+0.2, height+0.2
+    .width width*8
+    .height height*8
+    .polygon piece.polygon
+    .addClass pieceName
