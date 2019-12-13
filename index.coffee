@@ -1,4 +1,4 @@
-margin = 0.5
+margin = 1.1 # for I + stroke to not fall outside
 charKern = 1
 charSpace = 3
 lineKern = (state) ->
@@ -8,6 +8,7 @@ lineKern = (state) ->
     2
 headRoom = 3
 
+rotateDelay = 0.3
 horizDelay = 0.2
 vertDelay = 0.3
 pieceDelay = 1
@@ -27,19 +28,33 @@ sync = -> new Promise (done) ->
     for waiter in waiters
       waiter()
 
-animate = (group, glyph) ->
+animate = (group, glyph, state) ->
   myRound = round
   anims++
   loop
     for pieceName in glyph.order
+      angle = glyph[pieceName].r
+      angle = -90 if angle == 270
       piece = window.pieces[pieceName]
       polygon = group.polygon piece.polygon
       .addClass pieceName
       .transform transform =
-        rotate: glyph[pieceName].r
+        rotate: startAngle = (1 - state.rotate) * angle
         origin: piece.center
         translateX: startX = Math.floor glyph.width / 2 - 1
         translateY: startY = -headRoom
+      if startAngle == 0 and angle == 180
+        angles = [0, 90, 180]
+      else if startAngle != angle
+        angles = [startAngle, angle]
+      else
+        angles = [startAngle]
+      if angles.length > 1
+        for a in angles
+          await sleep rotateDelay unless a == 0
+          return unless round == myRound
+          transform.rotate = a
+          polygon.transform transform
       for x in [startX..glyph[pieceName].tx]
         await sleep horizDelay unless x == 0
         return unless round == myRound
@@ -62,7 +77,7 @@ drawLetter = (char, svg, state) ->
   glyph = window.font[char]
 
   if state.anim
-    animate group, glyph
+    animate group, glyph, state
   else
     for pieceName in glyph.order
       piece = window.pieces[pieceName]
@@ -99,7 +114,7 @@ updateText = (changed) ->
       else
         ''
   ).join ' '
-  return unless changed.text or changed.anim
+  return unless changed.text or changed.anim or changed.rotate
   round++
   anims = 0
   waiter() for waiter in waiting  # clear waiters
