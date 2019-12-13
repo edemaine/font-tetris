@@ -82,18 +82,15 @@ for font in fonts
       suffix = ''
       pieceSuffix = ''
 
-    # Check stability and compute ordering of pieces
+    # Check stability
     stable = {}
     frontier = []
     for j in [0...lines[lines.length-1].length]
       frontier.push [lines.length, j]
-    order = []
     while frontier.length
       [i, j] = frontier.pop()
       continue if [i, j] of stable
       stable[[i, j]] = true
-      if lines[i]?[j]? and lines[i][j] not in order
-        order.push lines[i][j]
       if i >= 0
         if lines[i-1]?[j] not in [' ', undefined]
           frontier.push [i-1, j]
@@ -109,6 +106,23 @@ for font in fonts
         if char != ' ' and not stable[[i,j]]
           unstable = true
     classes.push 'unstable' if unstable
+
+    # Compute piece ordering
+    order = []
+    for which in [0...7]
+      for pieceName of pieceList when pieceName not in order
+        droppable = true
+        for line, i in lines when pieceName in line
+          for j in [0...line.length] when line[j] == pieceName
+            for i2 in [0...i]
+              if lines[i2][j] not in order.concat [undefined, ' ', pieceName]
+                droppable = false
+        if droppable
+          order.push pieceName
+          break
+    if order.length != 7
+      console.warn "Couldn't order #{letter}: #{order}"
+    order.reverse()
 
     if classes.length
       suffix += " class=\"#{classes.join ' '}\""
