@@ -24,7 +24,7 @@ I: pixel 'hsl(180,75%,50%)' # cyan
 O: pixel 'hsl(60 ,75%,50%)' # yellow
 S: pixel 'hsl(120,75%,50%)' # green
 Z: pixel 'hsl(0  ,75%,50%)' # red
-T: pixel 'hsl(300,75%,50%)' # purple/magenta
-L: pixel 'hsl(30 ,75%,50%)' # orange
+T: pixel 'hsl(280,75%,50%)' # purple
+L: pixel 'hsl(40 ,75%,50%)' # orange
 J: pixel 'hsl(240,75%,50%)' # blue
 ' ': '<svg viewBox="0 0 10 10"></svg>'
