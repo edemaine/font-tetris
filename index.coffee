@@ -136,7 +136,7 @@ drawLetter = (char, svg, state) ->
           else
             glyph[pieceName].ty
       # Rotation center:
-      #group.circle 1
+      #group.circle 0.5
       #.center piece.center[0] + glyph[pieceName].tx,
       #        piece.center[1] + glyph[pieceName].ty
       y -= 4 if state.puzzle
