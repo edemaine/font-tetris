@@ -1,31 +1,66 @@
 margin = 0.5
 charKern = 1
 charSpace = 3
-lineKern = 2
+lineKern = (state) ->
+  #if state.anim
+  #  0
+  #else
+    2
+headRoom = 3
+
+horizDelay = 0.2
+vertDelay = 0.3
+pieceDelay = 1
 
 svg = null
+
+sleep = (delay) -> new Promise (done) -> setTimeout done, delay * 1000
+
+animate = (group, glyph) ->
+  for pieceName in glyph.order
+    piece = window.pieces[pieceName]
+    polygon = group.polygon piece.polygon
+    .addClass pieceName
+    .transform transform =
+      rotate: glyph[pieceName].r
+      origin: piece.center
+      translateX: startX = Math.floor glyph.width / 2
+      translateY: startY = -headRoom
+    for x in [startX..glyph[pieceName].tx]
+      await sleep horizDelay unless x == 0
+      transform.translateX = x
+      polygon.transform transform
+    for y in [startY..glyph[pieceName].ty]
+      await sleep vertDelay unless y == 0
+      transform.translateY = y
+      polygon.transform transform
+    await sleep pieceDelay
 
 drawLetter = (char, svg, state) ->
   group = svg.group()
   glyph = window.font[char]
-  for pieceName in glyph.order
-    piece = window.pieces[pieceName]
-    #group.polygon piece.polygon
-    #.addClass pieceName
-    #.transform
-    #  translateX: glyph[pieceName].tx
-    #  translateY: glyph[pieceName].ty
-    polygon = group.polygon piece.polygon
-    .addClass pieceName
-    .transform
-      rotate: glyph[pieceName].r
-      origin: piece.center
-      translateX: glyph[pieceName].tx
-      translateY: glyph[pieceName].ty
-    # Rotation center:
-    #group.circle 1
-    #.center piece.center[0] + glyph[pieceName].tx,
-    #        piece.center[1] + glyph[pieceName].ty
+
+  if state.anim
+    animate group, glyph
+  else
+    for pieceName in glyph.order
+      piece = window.pieces[pieceName]
+      #group.polygon piece.polygon
+      #.addClass pieceName
+      #.transform
+      #  translateX: glyph[pieceName].tx
+      #  translateY: glyph[pieceName].ty
+      group.polygon piece.polygon
+      .addClass pieceName
+      .transform
+        rotate: glyph[pieceName].r
+        origin: piece.center
+        translateX: glyph[pieceName].tx
+        translateY: glyph[pieceName].ty
+      # Rotation center:
+      #group.circle 1
+      #.center piece.center[0] + glyph[pieceName].tx,
+      #        piece.center[1] + glyph[pieceName].ty
 
   group: group
   x: 0
@@ -49,6 +84,7 @@ updateText = (changed) ->
   y = 0
   xmax = 0
   for line in state.text.split '\n'
+    y += headRoom if state.anim
     x = 0
     dy = 0
     row = []
@@ -57,7 +93,7 @@ updateText = (changed) ->
       if char of window.font
         x += charKern unless c == 0
         letter = drawLetter char, svg, state
-        letter.group.move x - letter.x, y - letter.y
+        letter.group.translate x - letter.x, y - letter.y
         row.push letter
         x += letter.width
         xmax = Math.max xmax, x
@@ -67,7 +103,7 @@ updateText = (changed) ->
     ## Bottom alignment
     #for letter in row
     #  letter.group.dy dy - letter.height
-    y += dy + lineKern
+    y += dy + lineKern state
   svg.viewbox
     x: -margin
     y: -margin
