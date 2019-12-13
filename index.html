@@ -30,6 +30,9 @@
 
       .black polygon { fill: black; stroke-width: 0.05; }
 
+      .base { fill: none; }
+      .floor .base { fill: grey; }
+
     </STYLE>
     <!--#include virtual="../../analytics.html"-->
   </HEAD>
@@ -51,8 +54,9 @@
         <TD>
           <INPUT ID="anim" TYPE="checkbox" CHECKED><LABEL FOR="anim">Animate</LABEL><BR>
           &nbsp;&nbsp;&nbsp; <INPUT ID="rotate" TYPE="checkbox" CHECKED><LABEL FOR="rotate">Include rotations</LABEL><BR>
-          <INPUT ID="puzzle" TYPE="checkbox" CHECKED><LABEL FOR="puzzle">Puzzle font</LABEL><BR>
+          <INPUT ID="puzzle" TYPE="checkbox"><LABEL FOR="puzzle">Puzzle font</LABEL><BR>
           <INPUT ID="black" TYPE="checkbox"><LABEL FOR="black">Black pieces (dissection puzzle)</LABEL><BR>
+          <INPUT ID="floor" TYPE="checkbox" CHECKED><LABEL FOR="floor">Draw bottom floor</LABEL><BR>
         </TD>
       </TR>
     </TABLE>

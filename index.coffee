@@ -106,12 +106,20 @@ animate = (group, glyph, state) ->
     await sleep loopDelay
     return unless round == myRound
     group.clear()
+    drawBase group, glyph
+
+drawBase = (group, glyph, dy = 0) ->
+  group.rect glyph.width + 2, 0.5
+  .x -1
+  .y glyph.height + dy
+  .addClass 'base'
 
 drawLetter = (char, svg, state) ->
   group = svg.group()
   glyph = window.font[char]
   y = 0
 
+  drawBase group, glyph, if state.puzzle and not state.anim then -5
   if state.anim
     animate group, glyph, state
     if state.puzzle
@@ -158,7 +166,7 @@ updateText = (changed) ->
   state = @getState()
   document.getElementById 'output'
   .className = (
-    for setting in ['black']
+    for setting in ['black', 'floor']
       if state[setting]
         setting
       else
