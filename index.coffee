@@ -1,10 +1,21 @@
 margin = 1.1 # for I + stroke to not fall outside
-charKern = 1
-charSpace = 3
+charKern = (state) ->
+  if state.puzzle
+    2
+  else
+    1
+charSpace = (state) ->
+  if state.puzzle
+    4
+  else
+    3
 lineKern = (state) ->
   #if state.anim
   #  0
   #else
+  if state.puzzle
+    4
+  else
     2
 headRoom = 3
 
@@ -141,7 +152,7 @@ updateText = (changed) ->
     for char, c in line
       char = char.toUpperCase()
       if char of window.font
-        x += charKern unless c == 0
+        x += charKern state unless c == 0
         letter = drawLetter char, svg, state
         letter.group.translate x - letter.x, y - letter.y
         row.push letter
@@ -149,7 +160,7 @@ updateText = (changed) ->
         xmax = Math.max xmax, x
         dy = Math.max dy, letter.height
       else if char == ' '
-        x += charSpace
+        x += charSpace state
     ## Bottom alignment
     #for letter in row
     #  letter.group.dy dy - letter.height
