@@ -2,6 +2,7 @@ handdrawn
 burrtools
 
 # generated
+*.js
 *.svg
 allfont.html
 pieces7

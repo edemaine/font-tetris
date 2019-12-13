@@ -2,6 +2,30 @@
 
 fs = require 'fs'
 path = require 'path'
+pieceList = require './pieces'
+pieceASCII =
+  I: ['IIII']
+  J: ['J  ',
+      'JJJ']
+  L: ['  L',
+      'LLL']
+  O: ['OO',
+      'OO']
+  S: [' SS',
+      'SS ']
+  T: [' T ',
+      'TTT']
+  Z: ['ZZ ',
+      ' ZZ']
+rotateASCII = (lines) ->
+  out = []
+  for line, i in lines
+    for char, j in line
+      out[j] ?= []
+      out[j][i] = char
+  for array, j in out
+    out[j] = array.reverse().join ''
+  out
 
 out = ['''
   <STYLE>
@@ -28,6 +52,8 @@ for font in fonts
   for piece in ['I', 'O', 'T', 'J', 'L', 'S', 'Z']
     out.push "\n<H2>#{piece}</H2>"
     out.push pieces[piece] = []
+  font.out = {} # for font.js
+
   for filename in fs.readdirSync font.dirname when filename.endsWith '.asc'
     letter = filename[...-4]
     space = ''
@@ -48,14 +74,18 @@ for font in fonts
       suffix = ''
       pieceSuffix = ''
 
+    # Check stability and compute ordering of pieces
     stable = {}
     frontier = []
     for j in [0...lines[lines.length-1].length]
       frontier.push [lines.length, j]
+    order = []
     while frontier.length
       [i, j] = frontier.pop()
       continue if [i, j] of stable
       stable[[i, j]] = true
+      if lines[i]?[j]? and lines[i][j] not in order
+        order.push lines[i][j]
       if i >= 0
         if lines[i-1]?[j] not in [' ', undefined]
           frontier.push [i-1, j]
@@ -77,6 +107,34 @@ for font in fonts
     letters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>"""
     bestLetters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>""" if letter.length == 1
 
+    # Compute translation and rotation for each piece (and verify it's there)
+    if letter.length == 1
+      font.out[letter] =
+        order: order
+        height: lines.length
+        width: Math.max ...(line.trimRight().length for line in lines)
+      for pieceName, piece of pieceList
+        ascii = pieceASCII[pieceName]
+        iDelta = (i for line, i in lines when pieceName in line)[0]
+        jDelta = Math.min ...(line.indexOf pieceName for line in lines when pieceName in line)
+        for rotate in [0...360] by 90
+          #console.log 'Looking for:'
+          #console.log ascii.join '\n'
+          match = true
+          for line, i in ascii
+            for char, j in line when char != ' '
+              if lines[iDelta+i]?[jDelta+j] != char
+                match = false
+          if match
+            font.out[letter][pieceName] =
+              r: rotate
+              tx: jDelta
+              ty: iDelta
+            break
+          ascii = rotateASCII ascii
+        unless match
+          console.warn "No match for #{pieceName} in #{letter}"
+
     for piece, pieceOut of pieces
       size =
         switch piece
@@ -87,6 +145,8 @@ for font in fonts
         pieceSuffix = """ style="max-height: #{size*10}; max-width: #{size*10}\""""
       pieceOut.push """<img title="#{letter}"#{space} src="#{font.dirname.replace 'font', 'pieces'}/#{piece}/#{letter}.svg"#{pieceSuffix}>"""
   out.push '\n</div>\n'
+
+  fs.writeFileSync "#{font.dirname}.js", "var font = #{JSON.stringify font.out}"
 
 for part, i in out
   if typeof part != 'string'
