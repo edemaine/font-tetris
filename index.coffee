@@ -38,7 +38,7 @@ animate = (group, glyph) ->
       .transform transform =
         rotate: glyph[pieceName].r
         origin: piece.center
-        translateX: startX = Math.floor glyph.width / 2
+        translateX: startX = Math.floor glyph.width / 2 - 1
         translateY: startY = -headRoom
       for x in [startX..glyph[pieceName].tx]
         await sleep horizDelay unless x == 0
