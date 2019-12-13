@@ -101,6 +101,9 @@ updateText = (changed) ->
   ).join ' '
   return unless changed.text or changed.anim
   round++
+  anims = 0
+  waiter() for waiter in waiting  # clear waiters
+  waiting = []
 
   svg.clear()
   y = 0
