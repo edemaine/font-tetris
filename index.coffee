@@ -12,7 +12,7 @@ rotateDelay = 0.3
 horizDelay = 0.3
 vertDelay = 0.2
 pieceDelay = 1
-loopDelay = 1 # in addition to pieceDelay
+loopDelay = 2 # in addition to pieceDelay
 
 svg = null
 round = 0
