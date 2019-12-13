@@ -9,8 +9,8 @@ lineKern = (state) ->
 headRoom = 3
 
 rotateDelay = 0.3
-horizDelay = 0.2
-vertDelay = 0.3
+horizDelay = 0.3
+vertDelay = 0.2
 pieceDelay = 1
 loopDelay = 1 # in addition to pieceDelay
 
