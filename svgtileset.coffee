@@ -17,7 +17,9 @@ pixel = (fill) -> ->
       </g>
     </symbol>
   """
-# colors based on Tetris 99 colors, but with different saturation and lightness
+# colors based on "standard color scheme"
+# [https://en.wikipedia.org/wiki/Tetris#Game_pieces] e.g. from
+# Tetris 99, but with different saturation and lightness */
 I: pixel 'hsl(180,75%,50%)' # cyan
 O: pixel 'hsl(60 ,75%,50%)' # yellow
 S: pixel 'hsl(120,75%,50%)' # green
