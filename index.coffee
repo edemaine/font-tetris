@@ -36,8 +36,7 @@ sync = -> new Promise (done) ->
   if anims == waiting.length  # everyone has reached sync
     waiters = waiting
     waiting = []
-    for waiter in waiters
-      waiter()
+    waiter() for waiter in waiters
 
 animate = (group, glyph, state) ->
   rotate = state.rotate
@@ -68,7 +67,6 @@ animate = (group, glyph, state) ->
       if state.puzzle
         jobs.push do (startY, polygon, transform) ->
           for y in [startY..glyph[pieceName].ty]
-            console.log puzzleY
             await sleep vertDelay unless y == startY
             return unless round == myRound
             transform.translateY = y
@@ -102,7 +100,9 @@ animate = (group, glyph, state) ->
         await sleep pieceDelay
         return unless round == myRound
     await job for job in jobs
+    return unless round == myRound
     await sync()
+    return unless round == myRound
     await sleep loopDelay
     return unless round == myRound
     group.clear()
@@ -174,9 +174,11 @@ updateText = (changed) ->
   ).join ' '
   return unless changed.text or changed.anim or changed.rotate or changed.puzzle
   round++
-  anims = 0
-  waiter() for waiter in waiting  # clear waiters
+  waiters = waiting
+  waiter() for waiter in waiters  # clear waiters
+  #await sleep 0
   waiting = []
+  anims = 0
 
   svg.clear()
   y = 0
