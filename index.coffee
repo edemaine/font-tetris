@@ -40,44 +40,68 @@ sync = -> new Promise (done) ->
       waiter()
 
 animate = (group, glyph, state) ->
+  rotate = state.rotate
+  rotate = false if state.puzzle
   myRound = round
   anims++
   loop
+    puzzleY = glyph.height - 3
+    jobs = []
     for pieceName in glyph.order
       angle = glyph[pieceName].r
       angle = -90 if angle == 270
+      startAngle = (1 - rotate) * angle
+      if state.puzzle
+        startX = glyph[pieceName].tx
+        startY = puzzleY
+      else
+        startX = Math.floor glyph.width / 2 - 1
+        startY = -headRoom
       piece = window.pieces[pieceName]
       polygon = group.polygon piece.polygon
       .addClass pieceName
       .transform transform =
-        rotate: startAngle = (1 - state.rotate) * angle
+        rotate: startAngle
         origin: piece.center
-        translateX: startX = Math.floor glyph.width / 2 - 1
-        translateY: startY = -headRoom
-      if startAngle == 0 and angle == 180
-        angles = [0, 90, 180]
-      else if startAngle != angle
-        angles = [startAngle, angle]
-      else
-        angles = [startAngle]
-      if angles.length > 1
-        for a in angles
-          await sleep rotateDelay unless a == 0
+        translateX: startX
+        translateY: startY
+      if state.puzzle
+        jobs.push do (startY, polygon, transform) ->
+          for y in [startY..glyph[pieceName].ty]
+            console.log puzzleY
+            await sleep vertDelay unless y == startY
+            return unless round == myRound
+            transform.translateY = y
+            polygon.transform transform
+          await sleep pieceDelay
           return unless round == myRound
-          transform.rotate = a
+        puzzleY -= 4 # mimic drawLetter in puzzle mode
+      else
+        if startAngle == 0 and angle == 180
+          angles = [0, 90, 180]
+        else if startAngle != angle
+          angles = [startAngle, angle]
+        else
+          angles = [startAngle]
+        if angles.length > 1
+          for a in angles
+            await sleep rotateDelay unless a == angles[0]
+            return unless round == myRound
+            transform.rotate = a
+            polygon.transform transform
+        for x in [startX..glyph[pieceName].tx]
+          await sleep horizDelay unless x == startX
+          return unless round == myRound
+          transform.translateX = x
           polygon.transform transform
-      for x in [startX..glyph[pieceName].tx]
-        await sleep horizDelay unless x == 0
+        for y in [startY..glyph[pieceName].ty]
+          await sleep vertDelay unless y == startY
+          return unless round == myRound
+          transform.translateY = y
+          polygon.transform transform
+        await sleep pieceDelay
         return unless round == myRound
-        transform.translateX = x
-        polygon.transform transform
-      for y in [startY..glyph[pieceName].ty]
-        await sleep vertDelay unless y == 0
-        return unless round == myRound
-        transform.translateY = y
-        polygon.transform transform
-      await sleep pieceDelay
-      return unless round == myRound
+    await job for job in jobs
     await sync()
     await sleep loopDelay
     return unless round == myRound
@@ -90,6 +114,8 @@ drawLetter = (char, svg, state) ->
 
   if state.anim
     animate group, glyph, state
+    if state.puzzle
+      y = -4 * glyph.order.length + glyph.height
   else
     for pieceName in glyph.order
       piece = window.pieces[pieceName]
@@ -121,7 +147,10 @@ drawLetter = (char, svg, state) ->
   width: glyph.width
   height:
     if state.puzzle
-      -y
+      if state.anim
+        -y + glyph.height - 3
+      else
+        -y
     else
       glyph.height
 
