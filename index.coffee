@@ -75,6 +75,7 @@ animate = (group, glyph, state) ->
 drawLetter = (char, svg, state) ->
   group = svg.group()
   glyph = window.font[char]
+  y = 0
 
   if state.anim
     animate group, glyph, state
@@ -92,17 +93,26 @@ drawLetter = (char, svg, state) ->
         rotate: glyph[pieceName].r
         origin: piece.center
         translateX: glyph[pieceName].tx
-        translateY: glyph[pieceName].ty
+        translateY:
+          if state.puzzle
+            y
+          else
+            glyph[pieceName].ty
       # Rotation center:
       #group.circle 1
       #.center piece.center[0] + glyph[pieceName].tx,
       #        piece.center[1] + glyph[pieceName].ty
+      y -= 4 if state.puzzle
 
   group: group
   x: 0
-  y: 0
+  y: y
   width: glyph.width
-  height: glyph.height
+  height:
+    if state.puzzle
+      -y
+    else
+      glyph.height
 
 updateText = (changed) ->
   state = @getState()
@@ -114,7 +124,7 @@ updateText = (changed) ->
       else
         ''
   ).join ' '
-  return unless changed.text or changed.anim or changed.rotate
+  return unless changed.text or changed.anim or changed.rotate or changed.puzzle
   round++
   anims = 0
   waiter() for waiter in waiting  # clear waiters
