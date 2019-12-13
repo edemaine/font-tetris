@@ -11,30 +11,51 @@ headRoom = 3
 horizDelay = 0.2
 vertDelay = 0.3
 pieceDelay = 1
+loopDelay = 1 # in addition to pieceDelay
 
 svg = null
+round = 0
+anims = 0
+waiting = []
 
 sleep = (delay) -> new Promise (done) -> setTimeout done, delay * 1000
+sync = -> new Promise (done) ->
+  waiting.push done
+  if anims == waiting.length  # everyone has reached sync
+    waiters = waiting
+    waiting = []
+    for waiter in waiters
+      waiter()
 
 animate = (group, glyph) ->
-  for pieceName in glyph.order
-    piece = window.pieces[pieceName]
-    polygon = group.polygon piece.polygon
-    .addClass pieceName
-    .transform transform =
-      rotate: glyph[pieceName].r
-      origin: piece.center
-      translateX: startX = Math.floor glyph.width / 2
-      translateY: startY = -headRoom
-    for x in [startX..glyph[pieceName].tx]
-      await sleep horizDelay unless x == 0
-      transform.translateX = x
-      polygon.transform transform
-    for y in [startY..glyph[pieceName].ty]
-      await sleep vertDelay unless y == 0
-      transform.translateY = y
-      polygon.transform transform
-    await sleep pieceDelay
+  myRound = round
+  anims++
+  loop
+    for pieceName in glyph.order
+      piece = window.pieces[pieceName]
+      polygon = group.polygon piece.polygon
+      .addClass pieceName
+      .transform transform =
+        rotate: glyph[pieceName].r
+        origin: piece.center
+        translateX: startX = Math.floor glyph.width / 2
+        translateY: startY = -headRoom
+      for x in [startX..glyph[pieceName].tx]
+        await sleep horizDelay unless x == 0
+        return unless round == myRound
+        transform.translateX = x
+        polygon.transform transform
+      for y in [startY..glyph[pieceName].ty]
+        await sleep vertDelay unless y == 0
+        return unless round == myRound
+        transform.translateY = y
+        polygon.transform transform
+      await sleep pieceDelay
+      return unless round == myRound
+    await sync()
+    await sleep loopDelay
+    return unless round == myRound
+    group.clear()
 
 drawLetter = (char, svg, state) ->
   group = svg.group()
@@ -79,6 +100,7 @@ updateText = (changed) ->
         ''
   ).join ' '
   return unless changed.text or changed.anim
+  round++
 
   svg.clear()
   y = 0
