@@ -17,15 +17,22 @@ pieceASCII =
       'TTT']
   Z: ['ZZ ',
       ' ZZ']
-rotateASCII = (lines) ->
-  out = []
-  for line, i in lines
-    for char, j in line
-      out[j] ?= []
-      out[j][i] = char
-  for array, j in out
-    out[j] = array.reverse().join ''
-  out
+pieceCells = {}
+for pieceName, ascii of pieceASCII
+  pieceCells[pieceName] = []
+  for row, i in ascii
+    for char, j in row when char != ' '
+      pieceCells[pieceName].push {i, j, char}
+rotateCells = (pieceName, cells) ->
+  center = pieceList[pieceName].center
+  for {i, j, char} in cells
+    # Rotate around center, with 0.5 to translate between vertex and cell coords
+    i -= center[1] - 0.5
+    j -= center[0] - 0.5
+    [i, j] = [j, -i]
+    i += center[1] - 0.5
+    j += center[0] - 0.5
+    {i, j, char}
 
 out = ['''
   <STYLE>
@@ -60,6 +67,7 @@ for font in fonts
     if letter.length == 1
       space = ' '
     pathname = path.join font.dirname, filename
+    console.log letter, pathname
     text = fs.readFileSync pathname, encoding: 'utf8'
     lines = text.split '\n'
     lines.pop() if lines[lines.length-1] == ''
@@ -114,24 +122,24 @@ for font in fonts
         height: lines.length
         width: Math.max ...(line.trimRight().length for line in lines)
       for pieceName, piece of pieceList
-        ascii = pieceASCII[pieceName]
+        cells = pieceCells[pieceName]
         iDelta = (i for line, i in lines when pieceName in line)[0]
         jDelta = Math.min ...(line.indexOf pieceName for line in lines when pieceName in line)
         for rotate in [0...360] by 90
-          #console.log 'Looking for:'
-          #console.log ascii.join '\n'
+          iMin = Math.min ...(i for {i} in cells)
+          jMin = Math.min ...(j for {j} in cells)
+          #console.log 'Looking for:', cells, iMin, jMin
           match = true
-          for line, i in ascii
-            for char, j in line when char != ' '
-              if lines[iDelta+i]?[jDelta+j] != char
-                match = false
+          for {i, j, char} in cells
+            if lines[iDelta+i-iMin]?[jDelta+j-jMin] != char
+              match = false
           if match
             font.out[letter][pieceName] =
               r: rotate
-              tx: jDelta
-              ty: iDelta
+              tx: jDelta - jMin
+              ty: iDelta - iMin
             break
-          ascii = rotateASCII ascii
+          cells = rotateCells pieceName, cells
         unless match
           console.warn "No match for #{pieceName} in #{letter}"
 

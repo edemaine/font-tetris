@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<HTML xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink">
+  <HEAD>
+    <TITLE>Tetris Font</TITLE>
+    <SCRIPT TYPE="text/javascript" src="node_modules/@svgdotjs/svg.js/dist/svg.min.js"></SCRIPT>
+    <SCRIPT TYPE="text/javascript" src="node_modules/furls/furls.js"></SCRIPT>
+    <SCRIPT TYPE="text/javascript" src="font7.js"></SCRIPT>
+    <SCRIPT TYPE="text/javascript" src="pieces.js"></SCRIPT>
+    <SCRIPT TYPE="text/javascript" src="index.js"></SCRIPT>
+    <STYLE TYPE="text/css">
+      #warnings { background: red; color: yellow; padding: 1ex; display: none; }
+      @media print {
+        .noprint { display: none; }
+      }
+      TEXTAREA { vertical-align: middle; }
+
+      polygon { stroke: black; stroke-width: 0.2; stroke-linejoin: round; }
+      /* colors based on Tetris 99 colors, but with different saturation and lightness */
+      .I { fill: hsl(180,75%,50%); } /* cyan */
+      .O { fill: hsl(60 ,75%,50%); } /* yellow */
+      .S { fill: hsl(120,75%,50%); } /* green */
+      .Z { fill: hsl(0  ,75%,50%); } /* red */
+      .T { fill: hsl(300,75%,50%); } /* purple/magenta */
+      .L { fill: hsl(30 ,75%,50%); } /* orange */
+      .J { fill: hsl(240,75%,50%); } /* blue */
+
+    </STYLE>
+    <!--#include virtual="../../analytics.html"-->
+  </HEAD>
+  <BODY>
+    <TABLE WIDTH="100%">
+      <TR>
+        <TD STYLE="text-align: left; vertical-align: middle;">
+          <H1>Tetris Font</H1>
+        <TD STYLE="text-align: right; vertical-align: middle;">
+          <H2>by <A HREF="http://erikdemaine.org/">Erik Demaine</A> and <A HREF="http://martindemaine.org">Martin Demaine</A>, 2019</H2>
+    </TABLE>
+
+    <TABLE id="data" WIDTH="100%" CLASS="noprint">
+      <TR>
+        <TD>
+          <LABEL FOR="text">Enter text to render:</LABEL> &nbsp;
+          <TEXTAREA NAME="text" ID="text" ROWS=4 COLS=40>text</TEXTAREA>
+        </TD>
+<!--
+        <TD>
+          <INPUT ID="upper" NAME="font" VALUE="upper" TYPE="radio" CHECKED><LABEL FOR="upper">Uppercase font</LABEL><BR>
+          <INPUT ID="lower" NAME="font" VALUE="lower" TYPE="radio"><LABEL FOR="lower">Lowercase font</LABEL><BR>
+          <INPUT ID="both" NAME="font" VALUE="both" TYPE="radio"><LABEL FOR="both">Both cases</LABEL>
+        </TD>
+-->
+      </TR>
+    </TABLE>
+
+    <P>
+
+    <DIV id="output" STYLE="width: 100%">
+    </DIV>
+
+    <HR>
+
+    <P>
+
+    <P>
+    Check out <A HREF="http://erikdemaine.org/fonts/">other mathematical and
+    puzzle fonts</A>. &bull; Feedback or not working?
+    <A HREF="mailto:edemaine+fonts@mit.edu">Email Erik</A>.
+  </BODY>
+</HTML>

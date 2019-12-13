@@ -1,6 +1,9 @@
 handdrawn
 burrtools
 
+package-lock.json
+node_modules
+
 # generated
 *.js
 *.svg

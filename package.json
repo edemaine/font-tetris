@@ -1,0 +1,12 @@
+{
+  "name": "tetris-font",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "author": "Erik Demaine",
+  "license": "MIT",
+  "dependencies": {
+    "@svgdotjs/svg.js": "^3.0.16",
+    "furls": "^0.4.0"
+  }
+}
