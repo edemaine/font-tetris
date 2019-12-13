@@ -26,6 +26,8 @@
       .L { fill: hsl(30 ,75%,50%); } /* orange */
       .J { fill: hsl(240,75%,50%); } /* blue */
 
+      .black polygon { fill: black; stroke-width: 0.05; }
+
     </STYLE>
     <!--#include virtual="../../analytics.html"-->
   </HEAD>
@@ -44,13 +46,10 @@
           <LABEL FOR="text">Enter text to render:</LABEL> &nbsp;
           <TEXTAREA NAME="text" ID="text" ROWS=4 COLS=40>text</TEXTAREA>
         </TD>
-<!--
         <TD>
-          <INPUT ID="upper" NAME="font" VALUE="upper" TYPE="radio" CHECKED><LABEL FOR="upper">Uppercase font</LABEL><BR>
-          <INPUT ID="lower" NAME="font" VALUE="lower" TYPE="radio"><LABEL FOR="lower">Lowercase font</LABEL><BR>
-          <INPUT ID="both" NAME="font" VALUE="both" TYPE="radio"><LABEL FOR="both">Both cases</LABEL>
+          <!--<INPUT ID="anim" TYPE="checkbox" CHECKED><LABEL FOR="anim">Animate</LABEL><BR>-->
+          <INPUT ID="black" TYPE="checkbox"><LABEL FOR="black">Black pieces (dissection puzzle)</LABEL><BR>
         </TD>
--->
       </TR>
     </TABLE>
 

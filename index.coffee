@@ -35,6 +35,16 @@ drawLetter = (char, svg, state) ->
 
 updateText = (changed) ->
   state = @getState()
+  document.getElementById 'output'
+  .className = (
+    for setting in ['black']
+      if state[setting]
+        setting
+      else
+        ''
+  ).join ' '
+  return unless changed.text or changed.anim
+
   svg.clear()
   y = 0
   xmax = 0
