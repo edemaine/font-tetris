@@ -1,4 +1,5 @@
 margin = 1.1 # for I + stroke to not fall outside
+baseOutset = 0.9
 charKern = (state) ->
   if state.puzzle
     2
@@ -109,8 +110,8 @@ animate = (group, glyph, state) ->
     drawBase group, glyph
 
 drawBase = (group, glyph, dy = 0) ->
-  group.rect glyph.width + 2, 0.5
-  .x -1
+  group.rect glyph.width + 2*baseOutset, 0.5
+  .x -baseOutset
   .y glyph.height + dy
   .addClass 'base'
 
