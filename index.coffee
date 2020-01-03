@@ -1,5 +1,6 @@
 margin = 1.1 # for I + stroke to not fall outside
-baseOutset = 0.9
+baseOutset = 0.9 # smaller than 1 to avoid overlapping stroke-linecap
+baseOutsetPuzzle = 1.1 # larger than to guarantee overlap
 charKern = (state) ->
   if state.puzzle
     2
@@ -109,9 +110,9 @@ animate = (group, glyph, state) ->
     group.clear()
     drawBase group, glyph
 
-drawBase = (group, glyph, dy = 0) ->
-  group.rect glyph.width + 2*baseOutset, 0.5
-  .x -baseOutset
+drawBase = (group, glyph, dy = 0, outset = baseOutset) ->
+  group.rect glyph.width + 2*outset, 0.5
+  .x -outset
   .y glyph.height + dy
   .addClass 'base'
 
@@ -120,7 +121,8 @@ drawLetter = (char, svg, state) ->
   glyph = window.font[char]
   y = 0
 
-  drawBase group, glyph, if state.puzzle and not state.anim then -5
+  drawBase group, glyph, (if state.puzzle and not state.anim then -5),
+    if state.puzzle then baseOutsetPuzzle else baseOutset
   if state.anim
     animate group, glyph, state
     if state.puzzle
