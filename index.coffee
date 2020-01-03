@@ -225,7 +225,26 @@ resize = ->
   height = Math.max 100, window.innerHeight - offset.y
   document.getElementById('output').style.height = "#{height}px"
 
-checkAlone = ['unfolded', 'folded']
+svgPrefixId = (svg, prefix = 'N') ->
+  svg.replace /\b(id\s*=\s*")([^"]*")/gi, "$1#{prefix}$2"
+  .replace /\b(xlink:href\s*=\s*"#)([^"]*")/gi, "$1#{prefix}$2"
+
+svgExplicit = (svg) ->
+  explicit = SVG().addTo '#output'
+  try
+    explicit.svg svgPrefixId svg.svg()
+    ## Expand CSS for <rect>, <line>, <polygon>
+    explicit.find 'rect, line, polygon'
+    .each ->
+      style = window.getComputedStyle @node
+      @css 'fill', style.fill
+      @css 'stroke', style.stroke
+      @css 'stroke-width', style.strokeWidth
+      @css 'stroke-linecap', style.strokeLinecap
+      @remove() if style.visibility == 'hidden'
+    explicit.svg()
+  finally
+    explicit.remove()
 
 furls = null
 window?.onload = ->
@@ -239,6 +258,14 @@ window?.onload = ->
 
   window.addEventListener 'resize', resize
   resize()
+
+  document.getElementById 'downloadSVG'
+  .addEventListener 'click', ->
+    explicit = svgExplicit svg
+    document.getElementById('download').href = URL.createObjectURL \
+      new Blob [explicit], type: "image/svg+xml"
+    document.getElementById('download').download = 'tetris.svg'
+    document.getElementById('download').click()
 
   for pieceName, piece of window.pieces
     width = Math.max ...(x for [x,y] in piece.polygon)
