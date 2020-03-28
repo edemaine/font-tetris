@@ -165,8 +165,15 @@ drawLetter = (char, svg, state) ->
     else
       glyph.height
 
+updateLink = (state) ->
+  if (link = document.getElementById 'link') and
+     (href = link.getAttribute 'data-href')
+    href = href.replace /TEXT/, state.text
+    link.setAttribute 'href', href
+
 updateText = (changed) ->
   state = @getState()
+  updateLink state
   document.getElementById 'output'
   .className = (
     for setting in ['black', 'floor']
@@ -263,7 +270,7 @@ window?.onload = ->
   resize()
 
   document.getElementById 'downloadSVG'
-  .addEventListener 'click', ->
+  ?.addEventListener 'click', ->
     explicit = svgExplicit svg
     document.getElementById('download').href = URL.createObjectURL \
       new Blob [explicit], type: "image/svg+xml"
@@ -271,6 +278,7 @@ window?.onload = ->
     document.getElementById('download').click()
 
   for pieceName, piece of window.pieces
+    return unless document.getElementById "piece#{pieceName}"
     width = Math.max ...(x for [x,y] in piece.polygon)
     height = Math.max ...(y for [x,y] in piece.polygon)
     x = SVG().addTo "#piece#{pieceName}"
