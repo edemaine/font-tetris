@@ -253,6 +253,9 @@ svgExplicit = (svg) ->
       @css 'stroke-linecap', style.strokeLinecap
       @remove() if style.visibility == 'hidden'
     explicit.svg()
+    ## Remove surrounding <svg>...</svg> from explicit SVG container
+    .replace /^<svg[^<>]*>/, ''
+    .replace /<\/svg>$/, ''
   finally
     explicit.remove()
 
