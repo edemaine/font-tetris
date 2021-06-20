@@ -154,6 +154,7 @@ animate = (group, glyph, state) ->
     drawBase group, glyph
     if recording?
       recording.on 'finished', (blob) ->
+        statusGIF false, 'Downloading Animated GIF...'
         download = document.getElementById 'download'
         download.href = URL.createObjectURL blob
         download.download = 'tetris.gif'
@@ -291,13 +292,6 @@ resize = ->
   offset = getOffset document.getElementById('output')
   height = Math.max 100, window.innerHeight - offset.y
   document.getElementById('output').style.height = "#{height}px"
-  size = svgSize()
-  console.log "#{size.width}x#{size.height}"
-
-svgSize = ->
-  rect = svg.node.getBoundingClientRect()
-  width: Math.floor rect.width * (window.devicePixelRatio ? 1)
-  height: Math.floor rect.height * (window.devicePixelRatio ? 1)
 
 svgPrefixId = (svg, prefix = 'N') ->
   svg.replace /\b(id\s*=\s*")([^"]*")/gi, "$1#{prefix}$2"
@@ -354,12 +348,15 @@ window?.onload = ->
 
   document.getElementById 'downloadGIF'
   ?.addEventListener 'click', ->
+    width = parseInt document.getElementById('width').value
+    width = 1024 if isNaN(width) or width <= 0
+    viewbox = svg.viewbox()
+    height = Math.floor width * viewbox.height / viewbox.width
     await import('./node_modules/gif.js/dist/gif.js')
-    size = svgSize()
     recording = new GIF
       workerScript: './node_modules/gif.js/dist/gif.worker.js'
-      width: Math.floor size.width
-      height: Math.floor size.height
+      width: width
+      height: height
     statusGIF false, 'Rendering Animated GIF...'
     updateText.call furls, recording: true
 
