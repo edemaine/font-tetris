@@ -7,6 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "@svgdotjs/svg.js": "^3.0.16",
-    "furls": "^0.4.0"
+    "furls": "^0.4.0",
+    "gif.js": "^0.2.0"
   }
 }

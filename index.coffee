@@ -29,22 +29,65 @@ loopDelay = 2 # in addition to pieceDelay
 
 svg = null
 round = 0
-anims = 0
+now = 0
+anims = []
 waiting = []
+recording = null
 
-sleep = (delay) -> new Promise (done) -> setTimeout done, delay * 1000
-sync = -> new Promise (done) ->
+timeout = (ms) -> new Promise (done) -> setTimeout done, ms
+simulate = ->
+  return unless recording
+  await timeout 0  # wait for all animations to start
+  before = now
+  now = Math.min ...(anim.t for anim in anims when not anim.sync)
+  return if now == before
+  image = new Image recording.options.width, recording.options.height
+  await new Promise (loaded) ->
+    image.onload = loaded
+    viewbox = svg.viewbox()
+    image.src = "data:image/svg+xml,#{svgExplicit svg}"
+    ## Size image to target
+    .replace /(width=")[^"]*(")/, "$1#{recording.options.width}$2"
+    .replace /(height=")[^"]*(")/, "$1#{recording.options.height}$2"
+    ## Add white background (Chrome doesn't seem to respect transparency)
+    .replace /<svg[^<>]*>/, """$&<rect fill="white" x="#{viewbox.x}" y="#{viewbox.y}" width="#{viewbox.width}" height="#{viewbox.height}"/>"""
+  recording.addFrame image,
+    copy: true
+    delay: now - before
+  for anim, i in anims when anim.t == now and not anim.sync
+    anim.advance()
+    anim.advance = null
+sleep = (delay, myAnim) -> new Promise (done) ->
+  delay *= 1000
+  if recording
+    anims[myAnim].t += Math.round delay
+    anims[myAnim].advance = done
+    simulate()
+  else
+    setTimeout done, delay
+sync = (myAnim) -> new Promise (done) ->
+  #console.log myAnim, 'sync', waiting.length
+  anims[myAnim].sync = true
   waiting.push done
-  if anims == waiting.length  # everyone has reached sync
+  if anims.length == waiting.length  # everyone has reached sync
     waiters = waiting
     waiting = []
     waiter() for waiter in waiters
+    tMax = Math.max ...(anim.t for anim in anims)
+    for anim in anims
+      anim.t = tMax
+      anim.sync = false
+  else
+    simulate()
 
 animate = (group, glyph, state) ->
   rotate = state.rotate
   rotate = false if state.puzzle
   myRound = round
-  anims++
+  myAnim = anims.length
+  anims.push
+    t: 0
+    advance: null
   loop
     puzzleY = glyph.height - 3
     jobs = []
@@ -69,11 +112,11 @@ animate = (group, glyph, state) ->
       if state.puzzle
         jobs.push do (startY, polygon, transform) ->
           for y in [startY..glyph[pieceName].ty]
-            await sleep vertDelay unless y == startY
+            await sleep vertDelay, myAnim unless y == startY
             return unless round == myRound
             transform.translateY = y
             polygon.transform transform
-          await sleep pieceDelay
+          await sleep pieceDelay, myAnim
           return unless round == myRound
         puzzleY -= 4 # mimic drawLetter in puzzle mode
       else
@@ -85,30 +128,40 @@ animate = (group, glyph, state) ->
           angles = [startAngle]
         if angles.length > 1
           for a in angles
-            await sleep rotateDelay unless a == angles[0]
+            await sleep rotateDelay, myAnim unless a == angles[0]
             return unless round == myRound
             transform.rotate = a
             polygon.transform transform
         for x in [startX..glyph[pieceName].tx]
-          await sleep horizDelay unless x == startX
+          await sleep horizDelay, myAnim unless x == startX
           return unless round == myRound
           transform.translateX = x
           polygon.transform transform
         for y in [startY..glyph[pieceName].ty]
-          await sleep vertDelay unless y == startY
+          await sleep vertDelay, myAnim unless y == startY
           return unless round == myRound
           transform.translateY = y
           polygon.transform transform
-        await sleep pieceDelay
+        await sleep pieceDelay, myAnim
         return unless round == myRound
     await job for job in jobs
     return unless round == myRound
-    await sync()
+    await sync myAnim
     return unless round == myRound
-    await sleep loopDelay
+    await sleep loopDelay, myAnim
     return unless round == myRound
     group.clear()
     drawBase group, glyph
+    if recording?
+      recording.on 'finished', (blob) ->
+        download = document.getElementById 'download'
+        download.href = URL.createObjectURL blob
+        download.download = 'tetris.gif'
+        download.click()
+        statusGIF true, normalStatus
+      statusGIF false, 'Processing Animated GIF...'
+      recording.render()
+      recording = null
 
 drawBase = (group, glyph, dy = 0, outset = baseOutset) ->
   group.rect glyph.width + 2*outset, 0.5
@@ -174,6 +227,9 @@ updateLink = (state) ->
 updateText = (changed) ->
   state = @getState()
   updateLink state
+  ## Allow GIF when animating, unless currently downloading
+  statusGIF state.anim and not state.puzzle
+  recording = null unless changed.recording
   document.getElementById 'output'
   .className = (
     for setting in ['black', 'floor']
@@ -182,13 +238,14 @@ updateText = (changed) ->
       else
         ''
   ).join ' '
-  return unless changed.text or changed.anim or changed.rotate or changed.puzzle
+  return unless changed.text or changed.anim or changed.recording or changed.rotate or changed.puzzle
   round++
   waiters = waiting
   waiter() for waiter in waiters  # clear waiters
   #await sleep 0
+  now = 0
+  anims = []
   waiting = []
-  anims = 0
 
   svg.clear()
   y = 0
@@ -234,6 +291,13 @@ resize = ->
   offset = getOffset document.getElementById('output')
   height = Math.max 100, window.innerHeight - offset.y
   document.getElementById('output').style.height = "#{height}px"
+  size = svgSize()
+  console.log "#{size.width}x#{size.height}"
+
+svgSize = ->
+  rect = svg.node.getBoundingClientRect()
+  width: Math.floor rect.width * (window.devicePixelRatio ? 1)
+  height: Math.floor rect.height * (window.devicePixelRatio ? 1)
 
 svgPrefixId = (svg, prefix = 'N') ->
   svg.replace /\b(id\s*=\s*")([^"]*")/gi, "$1#{prefix}$2"
@@ -259,6 +323,13 @@ svgExplicit = (svg) ->
   finally
     explicit.remove()
 
+normalStatus = 'Download Animated GIF'
+statusGIF = (enable, text) ->
+  gifButton = document.getElementById 'downloadGIF'
+  if text? or gifButton.innerText == normalStatus
+    gifButton.disabled = not enable
+    gifButton.innerText = text if text?
+
 furls = null
 window?.onload = ->
   svg = SVG().addTo '#output'
@@ -275,10 +346,22 @@ window?.onload = ->
   document.getElementById 'downloadSVG'
   ?.addEventListener 'click', ->
     explicit = svgExplicit svg
-    document.getElementById('download').href = URL.createObjectURL \
+    download = document.getElementById 'download'
+    download.href = URL.createObjectURL \
       new Blob [explicit], type: "image/svg+xml"
-    document.getElementById('download').download = 'tetris.svg'
-    document.getElementById('download').click()
+    download.download = 'tetris.svg'
+    download.click()
+
+  document.getElementById 'downloadGIF'
+  ?.addEventListener 'click', ->
+    await import('./node_modules/gif.js/dist/gif.js')
+    size = svgSize()
+    recording = new GIF
+      workerScript: './node_modules/gif.js/dist/gif.worker.js'
+      width: Math.floor size.width
+      height: Math.floor size.height
+    statusGIF false, 'Rendering Animated GIF...'
+    updateText.call furls, recording: true
 
   for pieceName, piece of window.pieces
     return unless document.getElementById "piece#{pieceName}"
