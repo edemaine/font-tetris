@@ -66,7 +66,7 @@ sleep = (delay, myAnim) -> new Promise (done) ->
   else
     setTimeout done, delay
 sync = (myAnim) -> new Promise (done) ->
-  #console.log myAnim, 'sync', waiting.length
+  #console.log myAnim, anims.length, 'sync', waiting.length
   anims[myAnim].sync = true
   waiting.push done
   if anims.length == waiting.length  # everyone has reached sync
@@ -85,13 +85,16 @@ animate = (group, glyph, state) ->
   rotate = false if state.puzzle
   myRound = round
   myAnim = anims.length
-  anims.push
-    t: 0
-    advance: null
+  numAnim = 1
+  numAnim = glyph.order.length if state.puzzle
+  for i in [0...numAnim]
+    anims.push
+      t: 0
+      advance: null
   loop
     puzzleY = glyph.height - 3
     jobs = []
-    for pieceName in glyph.order
+    for pieceName, pieceIndex in glyph.order
       angle = glyph[pieceName].r
       angle = -90 if angle == 270
       startAngle = (1 - rotate) * angle
@@ -110,14 +113,15 @@ animate = (group, glyph, state) ->
         translateX: startX
         translateY: startY
       if state.puzzle
-        jobs.push do (startY, polygon, transform) ->
+        jobs.push do (pieceIndex, startY, polygon, transform) ->
           for y in [startY..glyph[pieceName].ty]
-            await sleep vertDelay, myAnim unless y == startY
+            await sleep vertDelay, myAnim + pieceIndex unless y == startY
             return unless round == myRound
             transform.translateY = y
             polygon.transform transform
-          await sleep pieceDelay, myAnim
+          await sleep pieceDelay, myAnim + pieceIndex
           return unless round == myRound
+          await sync myAnim + pieceIndex
         puzzleY -= 4 # mimic drawLetter in puzzle mode
       else
         if startAngle == 0 and angle == 180
@@ -144,11 +148,12 @@ animate = (group, glyph, state) ->
           polygon.transform transform
         await sleep pieceDelay, myAnim
         return unless round == myRound
-    await job for job in jobs
+    if jobs.length
+      await Promise.all jobs
+    else
+      await Promise.all (sync myAnim + i for i in [0...numAnim])
     return unless round == myRound
-    await sync myAnim
-    return unless round == myRound
-    await sleep loopDelay, myAnim
+    await Promise.all (sleep loopDelay, myAnim + i for i in [0...numAnim])
     return unless round == myRound
     group.clear()
     drawBase group, glyph
@@ -229,7 +234,7 @@ updateText = (changed) ->
   state = @getState()
   updateLink state
   ## Allow GIF when animating, unless currently downloading
-  statusGIF state.anim and not state.puzzle
+  statusGIF state.anim
   recording = null unless changed.recording
   document.getElementById 'output'
   .className = (
