@@ -21,18 +21,27 @@ lineKern = (state) ->
     2
 headRoom = 3
 
+## All of these delays are divided by 1.2 ** speed,
+## except for loopDelay which stays long.
 rotateDelay = 0.3
 horizDelay = 0.3
 vertDelay = 0.2
 pieceDelay = 1
 loopDelay = 2 # in addition to pieceDelay
 
+furls = null
 svg = null
 round = 0
 now = 0
 anims = []
 waiting = []
 recording = null
+
+speed = 0
+updateSpeed = (s = furls.getState().speed) ->
+  s = parseInt s
+  s = 0 if isNaN s
+  speed = 1.2 ** s
 
 timeout = (ms) -> new Promise (done) -> setTimeout done, ms
 simulate = ->
@@ -64,7 +73,10 @@ sleep = (delay, myAnim) -> new Promise (done) ->
     anims[myAnim].advance = done
     simulate()
   else
-    setTimeout done, delay
+    setTimeout ->
+      updateSpeed()
+      done()
+    , delay
 sync = (myAnim) -> new Promise (done) ->
   #console.log myAnim, anims.length, 'sync', waiting.length
   anims[myAnim].sync = true
@@ -87,6 +99,7 @@ animate = (group, glyph, state) ->
   myAnim = anims.length
   numAnim = 1
   numAnim = glyph.order.length if state.puzzle
+  updateSpeed state.speed
   for i in [0...numAnim]
     anims.push
       t: 0
@@ -115,11 +128,11 @@ animate = (group, glyph, state) ->
       if state.puzzle
         jobs.push do (pieceIndex, startY, polygon, transform) ->
           for y in [startY..glyph[pieceName].ty]
-            await sleep vertDelay, myAnim + pieceIndex unless y == startY
+            await sleep vertDelay / speed, myAnim + pieceIndex unless y == startY
             return unless round == myRound
             transform.translateY = y
             polygon.transform transform
-          await sleep pieceDelay, myAnim + pieceIndex
+          await sleep pieceDelay / speed, myAnim + pieceIndex
           return unless round == myRound
           await sync myAnim + pieceIndex
         puzzleY -= 4 # mimic drawLetter in puzzle mode
@@ -132,21 +145,21 @@ animate = (group, glyph, state) ->
           angles = [startAngle]
         if angles.length > 1
           for a in angles
-            await sleep rotateDelay, myAnim unless a == angles[0]
+            await sleep rotateDelay / speed, myAnim unless a == angles[0]
             return unless round == myRound
             transform.rotate = a
             polygon.transform transform
         for x in [startX..glyph[pieceName].tx]
-          await sleep horizDelay, myAnim unless x == startX
+          await sleep horizDelay / speed, myAnim unless x == startX
           return unless round == myRound
           transform.translateX = x
           polygon.transform transform
         for y in [startY..glyph[pieceName].ty]
-          await sleep vertDelay, myAnim unless y == startY
+          await sleep vertDelay / speed, myAnim unless y == startY
           return unless round == myRound
           transform.translateY = y
           polygon.transform transform
-        await sleep pieceDelay, myAnim
+        await sleep pieceDelay / speed, myAnim
         return unless round == myRound
     if jobs.length
       await Promise.all jobs
@@ -183,7 +196,7 @@ drawLetter = (char, svg, state) ->
   drawBase group, glyph, (if state.puzzle and not state.anim then -5),
     if state.puzzle then baseOutsetPuzzle else baseOutset
   if state.anim
-    animate group, glyph, state
+    animate.call @, group, glyph, state
     if state.puzzle
       y = -4 * glyph.order.length + glyph.height
   else
@@ -265,7 +278,7 @@ updateText = (changed) ->
       char = char.toUpperCase()
       if char of window.font
         x += charKern state unless c == 0
-        letter = drawLetter char, svg, state
+        letter = drawLetter.call @, char, svg, state
         letter.group.translate x - letter.x, y - letter.y
         row.push letter
         x += letter.width
@@ -329,7 +342,6 @@ statusGIF = (enable, text) ->
     gifButton.disabled = not enable
     gifButton.innerText = text if text?
 
-furls = null
 window?.onload = ->
   svg = SVG().addTo '#output'
   .width '100%'

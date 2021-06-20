@@ -15,6 +15,7 @@
       }
       TEXTAREA { vertical-align: middle; }
       :invalid { background: #f88; }
+      input[type="range"] { vertical-align: middle; width: 100px; }
 
       polygon { stroke: black; stroke-width: 0.2; stroke-linejoin: round; }
       /* colors based on "standard color scheme"
@@ -53,7 +54,8 @@
         </TD>
         <TD>
           <INPUT ID="anim" TYPE="checkbox" CHECKED><LABEL FOR="anim">Animate</LABEL><BR>
-          &nbsp;&nbsp;&nbsp; <INPUT ID="rotate" TYPE="checkbox" CHECKED><LABEL FOR="rotate">Include rotations</LABEL><BR>
+          &nbsp;&nbsp;&nbsp;&nbsp;<INPUT ID="rotate" TYPE="checkbox" CHECKED><LABEL FOR="rotate">Include rotations</LABEL><BR>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<LABEL FOR="speed">Speed:</LABEL>&nbsp;<INPUT ID="speed" TYPE="range" MIN="0" MAX="10" STEP="1" VALUE="0"><BR>
           <INPUT ID="puzzle" TYPE="checkbox"><LABEL FOR="puzzle">Puzzle font</LABEL><BR>
           <INPUT ID="black" TYPE="checkbox"><LABEL FOR="black">Black pieces (dissection puzzle)</LABEL><BR>
           <INPUT ID="floor" TYPE="checkbox" CHECKED><LABEL FOR="floor">Draw bottom floor</LABEL><BR>
