@@ -347,7 +347,7 @@ window?.onload = ->
   .width '100%'
   .height '100%'
   furls = new Furls()
-  .addInputs()
+  .addInputs '#data input, #data textarea'
   .on 'stateChange', updateText
   .syncState()
 
