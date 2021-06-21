@@ -38,7 +38,7 @@ waiting = []
 recording = null
 
 speed = 0
-updateSpeed = (s = furls.getState().speed) ->
+updateSpeed = (s = furls?.getState().speed) ->
   s = parseInt s
   s = 0 if isNaN s
   speed = 1.2 ** s
@@ -338,6 +338,7 @@ svgExplicit = (svg) ->
 normalStatus = 'Download Animated GIF'
 statusGIF = (enable, text) ->
   gifButton = document.getElementById 'downloadGIF'
+  return unless gifButton?
   if text? or gifButton.innerText == normalStatus
     gifButton.disabled = not enable
     gifButton.innerText = text if text?
