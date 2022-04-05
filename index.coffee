@@ -309,6 +309,7 @@ getOffset = (el) ->
 resize = ->
   offset = getOffset document.getElementById('output')
   height = Math.max 100, window.innerHeight - offset.y
+  height -= parseInt window.getComputedStyle(document.body).marginBottom
   document.getElementById('output').style.height = "#{height}px"
 
 svgPrefixId = (svg, prefix = 'N') ->
