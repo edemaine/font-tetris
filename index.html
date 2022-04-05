@@ -34,6 +34,10 @@
       .base { fill: none; }
       .floor .base { fill: grey; }
 
+      #hud, #download { display: none; }
+
+      .hud-false > body > *:not(#output) { display: none; }
+
     </STYLE>
     <!--#include virtual="../../analytics.html"-->
   </HEAD>
@@ -59,6 +63,7 @@
           <INPUT ID="puzzle" TYPE="checkbox"><LABEL FOR="puzzle">Puzzle font</LABEL><BR>
           <INPUT ID="black" TYPE="checkbox"><LABEL FOR="black">Black pieces (dissection puzzle)</LABEL><BR>
           <INPUT ID="floor" TYPE="checkbox" CHECKED><LABEL FOR="floor">Draw bottom floor</LABEL><BR>
+          <INPUT ID="hud" TYPE="checkbox" CHECKED>
         </TD>
       </TR>
     </TABLE>
@@ -73,7 +78,7 @@
       <INPUT ID="width" TYPE="text" VALUE="1024" PLACEHOLDER="1024" SIZE="4" PATTERN="^\d+$">
       <BUTTON ID="downloadGIF">Download Animated GIF</BUTTON>
       <BUTTON ID="downloadSVG">Download SVG</BUTTON>
-      <A ID="download" STYLE="display: none"></A>
+      <A ID="download"></A>
     </DIV>
 
     <HR CLASS="noprint">

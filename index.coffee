@@ -351,6 +351,7 @@ window?.onload = ->
   .addInputs '#data input, #data textarea'
   .on 'stateChange', updateText
   .syncState()
+  .syncClass()
 
   window.addEventListener 'resize', resize
   resize()
