@@ -357,6 +357,10 @@ window?.onload = ->
   window.addEventListener 'resize', resize
   resize()
 
+  document.getElementById 'nohud'
+  ?.addEventListener 'click', ->
+    furls.set 'hud', false
+
   document.getElementById 'downloadSVG'
   ?.addEventListener 'click', ->
     explicit = svgExplicit svg
