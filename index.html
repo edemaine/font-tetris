@@ -64,6 +64,10 @@
           <INPUT ID="black" TYPE="checkbox"><LABEL FOR="black">Black pieces (dissection puzzle)</LABEL><BR>
           <INPUT ID="floor" TYPE="checkbox" CHECKED><LABEL FOR="floor">Draw bottom floor</LABEL><BR>
           <INPUT ID="hud" TYPE="checkbox" CHECKED>
+          <SCRIPT>
+            if (/[?&]hud=0/.test(window.location.search)) // avoid blinking
+              document.documentElement.classList.add('hud-false');
+          </SCRIPT>
         </TD>
       </TR>
     </TABLE>
