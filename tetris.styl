@@ -1,0 +1,30 @@
+polygon
+  stroke: black
+  stroke-width: 0.2
+  stroke-linejoin: round
+// colors based on "standard color scheme"
+// [https://en.wikipedia.org/wiki/Tetris#Game_pieces] e.g. from
+// Tetris 99, but with different saturation and lightness
+.I
+  fill: hsl(180,75%,50%)  // cyan
+.O
+  fill: hsl(60 ,75%,50%)  // yellow
+.S
+  fill: hsl(120,75%,50%)  // green
+.Z
+  fill: hsl(0  ,75%,50%)  // red
+.T
+  fill: hsl(280,75%,50%)  // purple/magenta
+.L
+  fill: hsl(40 ,75%,50%)  // orange
+.J
+  fill: hsl(240,75%,50%)  // blue
+
+.black polygon
+  fill: black
+  stroke-width: 0.05
+
+.base
+  fill: none
+.floor .base
+  fill: grey

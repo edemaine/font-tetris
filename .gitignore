@@ -5,8 +5,8 @@ package-lock.json
 node_modules
 
 # generated
+*.html
 *.js
 *.svg
-allfont.html
 pieces7
 pieces9

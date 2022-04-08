@@ -1,0 +1,171 @@
+doctype html
+html
+  head
+    title Tetris Font
+    script(type="text/javascript", src="node_modules/@svgdotjs/svg.js/dist/svg.min.js")
+    script(type="text/javascript", src="node_modules/furls/furls.js")
+    script(type="text/javascript", src="node_modules/font-webapp/font-webapp.js")
+    script(type="text/javascript", src="font7.js")
+    script(type="text/javascript", src="pieces.js")
+    script(type="text/javascript", src="index.js")
+    script(type="text/javascript").
+      if (/[?&]hud=0/.test(window.location.search)) // avoid blinking
+        document.documentElement.classList.add('hud-false');
+    style
+      :stylus
+        .hud-false > body > *:not(#output), #hud, #download
+          display: none
+
+        @media print
+          .noprint
+            display: none
+
+        textarea, input[type="range"]
+          vertical-align: middle
+        input[type="range"]
+          width: 100px
+        :invalid
+          background: #f88
+        .w-100
+          width: 100%
+        .text-left
+          text-align: left
+        .text-right
+          text-align: right
+        .align-middle
+          vertical-align: middle
+
+      include:stylus tetris.styl
+    //#include virtual="../../analytics.html"
+  body
+    table.w-100
+      tr
+        td.text-left.align-middle
+          h1
+            a(href="./") Tetris Font
+        td.text-right.align-middle
+          h2 by <a href="https://erikdemaine.org/">Erik Demaine</a> and <a href="http://martindemaine.org">Martin Demaine</a>, 2020
+
+    table#data.w-100.noprint
+      tr
+        td
+          label(for="text") Enter text to render: &nbsp;
+          textarea#text(name="text", rows=4, cols=40) text
+        td
+          input#anim(type="checkbox", checked)
+          label(for="anim") Animate
+          div(style="margin-left: 1.25em")
+            input#rotate(type="checkbox", checked, style="margin-left: 0px")
+            label(for="rotate") Include rotations
+            br
+            label(for="speed") Speed:
+            | &nbsp;
+            input#speed(type="range", min="0", max="10", step="1", value="0")
+          input#puzzle(type="checkbox")
+          label(for="puzzle") Puzzle font
+          br
+          input#black(type="checkbox")
+          label(for="black") Black pieces (dissection puzzle)
+          br
+          input#floor(type="checkbox", checked)
+          label(for="floor") Draw bottom floor
+          br
+          input#hud(type="checkbox", checked)
+
+    p
+
+    #output.w-100
+
+    .text-right.noprint
+      | GIF width:
+      input#width(type="text", value="1024", placeholder="1024", size="4", pattern="^\d+$")
+      button#downloadGIF Download Animated GIF
+      button#downloadSVG Download SVG
+      button#nohud(title="Use browser back button to restore interface.") Hide all but font rendering
+      a#download
+
+    hr.noprint
+
+    p.noprint.
+      <b><a href="https://en.wikipedia.org/wiki/Tetris">Tetris</a></b> is
+      <a href="https://en.wikipedia.org/wiki/List_of_best-selling_video_games">among the best-selling</a> (and perhaps best-known) video games ever.
+      We grew up playing the
+      <a href="https://en.wikipedia.org/wiki/Game_Boy">Game Boy</a> and
+      <a href="https://en.wikipedia.org/wiki/Spectrum_HoloByte">Spectrum HoloByte</a> PC editions.
+      Erik is even a <a href="http://erikdemaine.org/images/tetris_award_large.jpg">Tetris Master</a>.
+      Nowadays you can play
+      <a href="https://tetris.com/play-tetris/">in your browser</a>
+      or <a href="https://en.wikipedia.org/wiki/Tetris_99">on a Switch</a>
+      or <a href="https://en.wikipedia.org/wiki/Tetris_Effect">on PS4/PC/VR</a>.
+
+    p.noprint.
+      <b>Font design.</b>  Each letter in this typeface is made up of exactly
+      one of each of the Tetris pieces:
+      <span id="pieceI"></span> (I),
+      <span id="pieceJ"></span> (J),
+      <span id="pieceL"></span> (L),
+      <span id="pieceO"></span> (O),
+      <span id="pieceS"></span> (S),
+      <span id="pieceT"></span> (T), and
+      <span id="pieceZ"></span> (Z).
+      Furthermore, the letter is designed so that it can actually be constructed
+      by stacking these pieces one at a time and be supported by previous pieces,
+      as in Tetris.
+      These designs were found by hand, aided by the
+      <a href="http://burrtools.sourceforge.net/">BurrTools</a> software
+      which enabled searching for whether the Tetris pieces could fit inside
+      a candidate outline for a letter.
+      The piece colors roughly follow
+      <a href="https://en.wikipedia.org/wiki/Tetris#Game_pieces">The Tetris Company's standard colors</a>,
+      or you can switch to black pieces.
+      The initial rotations follow the standard
+      <a href="https://tetris.fandom.com/wiki/SRS">Super Rotation System</a>.
+
+    p.noprint.
+      <b>Puzzles.</b>
+      In the <b>puzzle font</b>, the letters are at the correct rotations and
+      horizontal positions, and their vertical position represents their drop
+      sequence.  Drop the pieces in your head (or via <b>animate</b>) to figure
+      out what letter is encoded.
+      &bull;
+      Even without puzzle font turned on, in the <b>animated</b> font, you can
+      try to guess what the letter is before all the pieces have arrived.
+      &bull;
+      One final set of puzzles: In the unanimated unpuzzle <b>black-pieces</b> font,
+      try to figure out how one of each Tetris piece perfectly packs that shape.
+      (This is the task that BurrTools is very good at.)
+
+    p.noprint.
+      <b>Related mathematics.</b>
+      (Perfect-information)
+      <a href="http://erikdemaine.org/papers/Tetris_IJCGA/">Tetris is NP-complete</a>,
+      meaning that it's computationally intractable to figure out whether you can
+      survive, or clear the board, given an initial board configuration and a
+      sequence of <i>n</i> pieces to come.
+      <a href="http://erikdemaine.org/papers/TotalTetris_JIP/">Similar results
+      hold</a> for <i>k</i>-tris played with
+      <a href="https://en.wikipedia.org/wiki/Polyomino"><i>k</i>-ominoes</a>
+      instead of tetrominoes.  Most recently, we
+      <a href="http://erikdemaine.org/papers/ThinTetris_JIP/">analyzed the
+      complexity of Tetris with few rows or columns</a>; this font appears
+      in that paper.
+
+    p.noprint.
+      <b>Acknowledgments.</b>  This font was inspired by a collaboration with
+      Alex Streif and Kate Jones of
+      <a href="http://www.gamepuzzles.com/">Kadon Enterprises</a>
+      during <a href="https://bridgesmathart.org/bridges-2017/">BRIDGES 2017</a>,
+      where we started designing a font using just 5 pieces:
+      the &ldquo;<a href="https://en.wikipedia.org/wiki/Tetromino">free
+      tetrominoes</a>&rdquo; where S is the same piece as Z and J is the same
+      piece as L.
+      Relatedly, Kate Jones designed <a href="kadon_fonts.jpg">other polyomino
+      fonts included in some Kadon manuals</a>.
+      By contrast, this typeface aims closer to the rules of Tetris,
+      where reflection matters and the pieces must stack and be supported.
+
+    p.noprint.
+      Check out <a href="http://erikdemaine.org/fonts/">other mathematical and
+      puzzle fonts</a>. &bull; Feedback or not working?
+      <a href="mailto:edemaine+fonts@mit.edu">Email Erik</a>. &bull;
+      <a href="https://github.com/edemaine/font-tetris">Source code on GitHub</a>.

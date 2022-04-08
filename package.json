@@ -1,13 +1,28 @@
 {
   "name": "tetris-font",
   "version": "1.0.0",
-  "description": "",
-  "scripts": {},
-  "author": "Erik Demaine",
-  "license": "MIT",
+  "description": "Tetris font",
   "dependencies": {
     "@svgdotjs/svg.js": "^3.0.16",
+    "font-webapp": "^0.1.4",
     "furls": "^0.7.0",
     "gif.js": "^0.2.0"
-  }
+  },
+  "devDependencies": {
+    "coffeescript": "^2.5.1",
+    "gulp": "^4.0.2",
+    "gulp-chmod": "^3.0.0",
+    "gulp-coffee": "^3.0.3",
+    "gulp-pug": "^5.0.0",
+    "jstransformer-stylus": "^1.5.0"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "pug": "gulp pug",
+    "coffee": "gulp coffee",
+    "allfont": "gulp allfont",
+    "watch": "gulp watch"
+  },
+  "author": "Erik Demaine",
+  "license": "MIT"
 }
