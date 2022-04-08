@@ -34,7 +34,9 @@ exports.font = font = ->
     'coffee allfont.coffee'
   ]
     console.log "\t#{command}"
-    child_process.spawnSync command, stdio: 'inherit'
+    child_process.spawnSync command,
+      stdio: 'inherit'
+      shell: true
 
 ## npm run watch / npx gulp watch: continuously update above
 exports.watch = watch = ->
