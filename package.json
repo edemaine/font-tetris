@@ -20,7 +20,7 @@
     "build": "gulp build",
     "pug": "gulp pug",
     "coffee": "gulp coffee",
-    "allfont": "gulp allfont",
+    "font": "gulp font",
     "watch": "gulp watch"
   },
   "author": "Erik Demaine",

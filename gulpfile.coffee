@@ -23,10 +23,18 @@ exports.coffee = coffee = ->
 ## npm run build / npx gulp build: all of the above
 exports.build = build = gulp.series pug, coffee
 
-## npm run allfont / npx gulp allfont: builds allfont.html via
-## `coffee allfont.coffee`
-exports.allfont = font = ->
-  child_process.exec 'coffee allfont.coffee'
+## npm run font / npx gulp font:
+## * builds pieces7 from font7 via pieces.sh
+## * builds pieces7/*/*.svg via svgtiler
+## * builds allfont.html via `coffee allfont.coffee`
+exports.font = font = ->
+  for command in [
+    './pieces.sh'
+    'svgtiler svgtileset.coffee font*/*.asc pieces*/*/*.asc'
+    'coffee allfont.coffee'
+  ]
+    console.log "\t#{command}"
+    child_process.spawnSync command, stdio: 'inherit'
 
 ## npm run watch / npx gulp watch: continuously update above
 exports.watch = watch = ->
