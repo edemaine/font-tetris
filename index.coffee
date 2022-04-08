@@ -249,14 +249,6 @@ updateText = (changed) ->
   ## Allow GIF when animating, unless currently downloading
   statusGIF state.anim
   recording = null unless changed.recording
-  document.getElementById 'output'
-  .className = (
-    for setting in ['black', 'floor']
-      if state[setting]
-        setting
-      else
-        ''
-  ).join ' '
   return unless changed.text or changed.anim or changed.recording or changed.rotate or changed.puzzle
   round++
   waiters = waiting
