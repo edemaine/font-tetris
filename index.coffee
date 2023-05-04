@@ -118,9 +118,7 @@ animate = (group, glyph, state) ->
         startX = Math.floor glyph.width / 2 - 1
         startY = -headRoom
       piece = window.pieces[pieceName]
-      polygon = group.polygon piece.polygon
-      .addClass pieceName
-      .transform transform =
+      polygon = drawPiece group, piece, pieceName, state, transform =
         rotate: startAngle
         origin: piece.center
         translateX: startX
@@ -188,6 +186,27 @@ drawBase = (group, glyph, dy = 0, outset = baseOutset) ->
   .y glyph.height + dy
   .addClass 'base'
 
+drawPiece = (group, piece, pieceName, state, transform) ->
+  #group.polygon piece.polygon
+  #.addClass pieceName
+  #.transform
+  #  translateX: glyph[pieceName].tx
+  #  translateY: glyph[pieceName].ty
+  if state.grid
+    container = group.group()
+  else
+    container = null
+  polygon = (container ? group).polygon piece.polygon
+  .addClass pieceName
+  if state.grid
+    for edge in piece.edges
+      container.line ...edge[0], ...edge[1]
+  ## Rotation center:
+  #group.circle 0.5
+  #.center piece.center[0] + glyph[pieceName].tx,
+  #        piece.center[1] + glyph[pieceName].ty
+  (container ? polygon).transform transform
+
 drawLetter = (char, svg, state) ->
   group = svg.group()
   glyph = window.font[char]
@@ -202,14 +221,7 @@ drawLetter = (char, svg, state) ->
   else
     for pieceName in glyph.order
       piece = window.pieces[pieceName]
-      #group.polygon piece.polygon
-      #.addClass pieceName
-      #.transform
-      #  translateX: glyph[pieceName].tx
-      #  translateY: glyph[pieceName].ty
-      group.polygon piece.polygon
-      .addClass pieceName
-      .transform
+      drawPiece group, piece, pieceName, state,
         rotate: glyph[pieceName].r
         origin: piece.center
         translateX: glyph[pieceName].tx
@@ -218,10 +230,6 @@ drawLetter = (char, svg, state) ->
             y
           else
             glyph[pieceName].ty
-      # Rotation center:
-      #group.circle 0.5
-      #.center piece.center[0] + glyph[pieceName].tx,
-      #        piece.center[1] + glyph[pieceName].ty
       y -= 4 if state.puzzle
 
   group: group
@@ -249,7 +257,7 @@ updateText = (changed) ->
   ## Allow GIF when animating, unless currently downloading
   statusGIF state.anim
   recording = null unless changed.recording
-  return unless changed.text or changed.anim or changed.recording or changed.rotate or changed.puzzle
+  return unless changed.text or changed.anim or changed.recording or changed.rotate or changed.puzzle or changed.grid
   round++
   waiters = waiting
   waiter() for waiter in waiters  # clear waiters

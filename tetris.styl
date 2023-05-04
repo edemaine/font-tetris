@@ -20,9 +20,21 @@ polygon
 .J
   fill: hsl(240,75%,50%)  // blue
 
-.black-true polygon
-  fill: black
-  stroke-width: 0.05
+.black-true
+  polygon
+    fill: black
+    stroke-width: 0.05
+
+.grid-true
+  line
+    stroke: black
+    stroke-width: 0.075
+.grid-true.black-true
+  line
+    stroke: white
+  polygon
+    stroke: white
+    stroke-width: 0.05
 
 .floor-false .base
   fill: none

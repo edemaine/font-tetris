@@ -4,7 +4,6 @@ html
     title Tetris Font
     script(type="text/javascript", src="node_modules/@svgdotjs/svg.js/dist/svg.min.js")
     script(type="text/javascript", src="node_modules/furls/furls.js")
-    script(type="text/javascript", src="node_modules/font-webapp/font-webapp.js")
     script(type="text/javascript", src="font7.js")
     script(type="text/javascript", src="pieces.js")
     script(type="text/javascript", src="index.js")
@@ -66,9 +65,12 @@ html
           br
           input#black(type="checkbox")
           label(for="black") Black pieces (dissection puzzle)
+        td
+          input#grid(type="checkbox")
+          label(for="grid") Grid
           br
           input#floor(type="checkbox", checked)
-          label(for="floor") Draw bottom floor
+          label(for="floor") Bottom floor
           br
           input#hud(type="checkbox", checked)
 
