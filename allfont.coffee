@@ -48,6 +48,11 @@ fonts = [
   dirname: 'font7'
 ]
 
+symbols =
+  question: '?'
+
+best = (name) -> name.length == 1
+
 for font in fonts
   out.push "\n<H1>#{font.title}</H1>\n"
   out.push "<H2>Current Selection</H2>\n"
@@ -63,8 +68,9 @@ for font in fonts
 
   for filename in fs.readdirSync font.dirname when filename.endsWith '.asc'
     letter = filename[...-4]
+    letter = symbols[letter] if letter of symbols
     space = ''
-    if letter.length == 1
+    if best letter
       space = ' '
     pathname = path.join font.dirname, filename
     console.log letter, pathname
@@ -127,10 +133,10 @@ for font in fonts
     if classes.length
       suffix += " class=\"#{classes.join ' '}\""
     letters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>"""
-    bestLetters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>""" if letter.length == 1
+    bestLetters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>""" if best letter
 
     # Compute translation and rotation for each piece (and verify it's there)
-    if letter.length == 1
+    if best letter
       font.out[letter] =
         order: order
         height: lines.length
