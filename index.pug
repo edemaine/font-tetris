@@ -29,6 +29,8 @@ html
           width: 100%
         .text-left
           text-align: left
+        .text-center
+          text-align: center
         .text-right
           text-align: right
         .align-middle
@@ -50,6 +52,9 @@ html
         td
           label(for="text") Enter text to render: &nbsp;
           textarea#text(name="text", rows=4, cols=40) text
+          .text-center
+            input#rot(type="checkbox")
+            label(for="rot") Obscure in URL
         td
           input#anim(type="checkbox", checked)
           label(for="anim") Animate

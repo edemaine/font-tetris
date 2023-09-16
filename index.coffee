@@ -348,8 +348,18 @@ window?.onload = ->
   svg = SVG().addTo '#output'
   .width '100%'
   .height '100%'
-  furls = new Furls()
+  (furls = new Furls())
   .addInputs '#data input, #data textarea'
+  .configInput 'text',
+    encode: rot47 = (s) ->
+      return s unless furls.get 'rot'
+      s.split ''
+      .map (c) =>
+        code = c.charCodeAt(0)
+        return c unless 33 <= code <= 126
+        String.fromCharCode 33 + (code + 14) % 94
+      .join ''
+    decode: rot47
   .on 'stateChange', updateText
   .syncState()
   .syncClass()
