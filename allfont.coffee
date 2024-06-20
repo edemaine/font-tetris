@@ -113,6 +113,18 @@ for font in fonts
           unstable = true
     classes.push 'unstable' if unstable
 
+    # Compute piece partial order: which pieces each piece depends on
+    partial = {}
+    for pieceName of pieceList
+      deps = new Set
+      for line, i in lines when pieceName in line
+        for j in [0...line.length] when line[j] == pieceName
+          for i2 in [i+1...lines.length]
+            if lines[i2][j] not in [undefined, ' ', pieceName]
+              deps.add lines[i2][j]
+              break
+      partial[pieceName] = Array.from(deps).join ''
+
     # Compute piece ordering
     order = []
     for which in [0...7]
@@ -139,6 +151,7 @@ for font in fonts
     if best letter
       font.out[letter] =
         order: order
+        partial: partial
         height: lines.length
         width: Math.max ...(line.trimRight().length for line in lines)
       for pieceName, piece of pieceList

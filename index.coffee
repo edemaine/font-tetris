@@ -107,7 +107,8 @@ animate = (group, glyph, state) ->
   loop
     puzzleY = glyph.height - 3
     jobs = []
-    for pieceName, pieceIndex in glyph.order
+    #for pieceName, pieceIndex in glyph.order
+    for pieceName, pieceIndex in orderLetter glyph
       angle = glyph[pieceName].r
       angle = -90 if angle == 270
       startAngle = (1 - rotate) * angle
@@ -206,6 +207,23 @@ drawPiece = (group, piece, pieceName, state, transform) ->
     container.circle 0.5
     .center ...piece.center
   (container ? polygon).transform transform
+
+orderLetter = (glyph) ->
+  order = []
+  for which in [0...7]
+    options = []
+    for pieceName, deps of glyph.partial when pieceName not in order
+      droppable = true
+      for dep in deps
+        if dep not in order
+          droppable = false
+      if droppable
+        options.push pieceName
+    if options.length
+      order.push options[Math.floor Math.random() * options.length]
+    else
+      console.warn "Couldn't order #{letter}: #{order}"
+  order
 
 drawLetter = (char, svg, state) ->
   group = svg.group()
