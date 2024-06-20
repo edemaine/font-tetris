@@ -12,8 +12,10 @@ html
         document.documentElement.classList.add('hud-false');
     style
       :stylus
-        .hud-false > body > *:not(#output), #hud, #download
+        :root.hud-false > body > *:not(#output), #hud, #download
           display: none
+        :root.rot-true #text:not(:focus)
+          color: rgba(0,0,0,0)
 
         @media print
           .noprint
