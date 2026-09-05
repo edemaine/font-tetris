@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -0.5 9 9">
+  <title>Tetris Font</title>
+  <!-- Seven-piece F from font7/F.asc, with the colors from tetris.styl. -->
+  <g stroke="black" stroke-width="0.2" stroke-linejoin="round">
+    <path fill="hsl(120,75%,50%)" d="M0 0H1V1H2V3H1V2H0Z"/>
+    <path fill="hsl(0,75%,50%)" d="M1 0H3V1H4V2H2V1H1Z"/>
+    <path fill="hsl(180,75%,50%)" d="M3 0H7V1H3Z"/>
+    <path fill="hsl(280,75%,50%)" d="M2 2H3V5H2V4H1V3H2Z"/>
+    <path fill="hsl(40,75%,50%)" d="M3 3H6V4H4V5H3Z"/>
+    <path fill="hsl(240,75%,50%)" d="M1 4H2V5H4V6H1Z"/>
+    <path fill="hsl(60,75%,50%)" d="M1 6H3V8H1Z"/>
+  </g>
+</svg>
