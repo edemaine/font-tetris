@@ -24,13 +24,14 @@ exports.coffee = coffee = ->
 exports.build = build = gulp.series pug, coffee
 
 ## npm run font / npx gulp font:
-## * builds pieces7 from font7 via pieces.sh
-## * builds pieces7/*/*.svg via svgtiler
+## * builds font*/*.svg via svgtiler
+## * individual-piece generation and diagnostics are disabled for speed
 ## * builds allfont.html via `coffee allfont.coffee`
 exports.font = font = (done) =>
   for command in [
-    'bash ./pieces.sh'
-    'svgtiler svgtileset.coffee font*/*.asc pieces*/*/*.asc'
+    #'bash ./pieces.sh'
+    #'svgtiler svgtileset.coffee font*/*.asc pieces*/*/*.asc'
+    'svgtiler svgtileset.coffee font*/*.asc'
     'coffee allfont.coffee'
   ]
     console.log "\t#{command}"

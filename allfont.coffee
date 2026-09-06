@@ -74,13 +74,14 @@ for font in fonts
   # The old diagnostic gallery splits the mixed font by tetromino type.
   # Monotype sources use their characters as instance IDs, so their useful
   # diagnostic is the composite SVG above instead.
-  pieces = null
-  unless font.pieceType?
-    out.push '\n<details class="pieces"><summary>Individual tetromino checks</summary>'
-    pieces = {}
-    for pieceType in ['I', 'O', 'T', 'J', 'L', 'S', 'Z']
-      out.push "\n<H2>#{pieceType}</H2>"
-      out.push pieces[pieceType] = []
+  # Disabled along with pieces.sh in gulpfile.coffee.
+  #pieces = null
+  #unless font.pieceType?
+  #  out.push '\n<details class="pieces"><summary>Individual tetromino checks</summary>'
+  #  pieces = {}
+  #  for pieceType in ['I', 'O', 'T', 'J', 'L', 'S', 'Z']
+  #    out.push "\n<H2>#{pieceType}</H2>"
+  #    out.push pieces[pieceType] = []
 
   fontData[font.id] =
     pieceType: font.pieceType
@@ -205,18 +206,18 @@ for font in fonts
     letters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>"""
     bestLetters.push """<img title="#{letter}"#{space} src="#{font.dirname}/#{letter}.svg"#{suffix}>""" if best letter
 
-    if pieces?
-      for type, pieceOut of pieces
-        size = switch type
-          when 'O' then 2
-          when 'I' then 4
-          else 3
-        pieceSuffix = if 'halfgrid' in classes
-          """ style="max-height: #{size*10}px; max-width: #{size*10}px\""""
-        else
-          ''
-        pieceOut.push """<img title="#{letter}"#{space} src="#{font.dirname.replace 'font', 'pieces'}/#{type}/#{letter}.svg"#{pieceSuffix}>"""
-  out.push '\n</details>\n' if pieces?
+    #if pieces?
+    #  for type, pieceOut of pieces
+    #    size = switch type
+    #      when 'O' then 2
+    #      when 'I' then 4
+    #      else 3
+    #    pieceSuffix = if 'halfgrid' in classes
+    #      """ style="max-height: #{size*10}px; max-width: #{size*10}px\""""
+    #    else
+    #      ''
+    #    pieceOut.push """<img title="#{letter}"#{space} src="#{font.dirname.replace 'font', 'pieces'}/#{type}/#{letter}.svg"#{pieceSuffix}>"""
+  #out.push '\n</details>\n' if pieces?
   heights = Array.from(heights).sort (a, b) => a-b
   heightSummary = "Selected glyph heights: #{heights.join ', '}"
   heightSummary += ' (inconsistent heights)' if heights.length > 1

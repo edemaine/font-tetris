@@ -110,13 +110,8 @@ test 'all eight alphabets export complete placements and backward dependencies',
   actual = generate()
   assert.equal actual.error, null
   html = actual.output['allfont.html']
-  assert.equal html.match(/<details\b/g).length, 1
-  details = html.match /<details class="pieces"><summary>Individual tetromino checks<\/summary>([\s\S]*?)<\/details>/
-  assert.ok details
-  for type in 'IOTJLSZ'
-    assert.ok details[1].includes "pieces7/#{type}/A.svg"
-  assert.doesNotMatch details[1], /<H1>/
-  assert.ok html.indexOf('</details>') < html.indexOf('<H1>I</H1>')
+  assert.doesNotMatch html, /<details\b|pieces7\//
+  assert.ok html.includes 'font7/A.svg'
   assert.deepEqual Object.keys(actual.fonts).sort(), ['7', 'I', 'I2', 'J', 'L', 'S', 'T', 'Z']
   for id, font of actual.fonts
     for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
