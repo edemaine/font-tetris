@@ -20,6 +20,7 @@
     "pug": "gulp pug",
     "coffee": "gulp coffee",
     "font": "gulp font",
+    "test": "coffee tests/fonts.coffee",
     "watch": "gulp watch"
   },
   "author": "Erik Demaine",

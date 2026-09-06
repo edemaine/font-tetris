@@ -1,14 +1,14 @@
 # svgtiler tile set for simple visualization
 pixel = (fill) -> ->
   #g = ["""<rect width="10" height="10" fill="#{fill}" stroke="#{fill}" stroke-width="0.5" />"""]
-  g = ["""<rect width="10" height="10" fill="#{fill}" stroke="#{fill}" strok-width="0.1"/>"""]
+  g = ["""<rect width="10" height="10" fill="#{fill}" stroke="#{fill}" stroke-width="0.1"/>"""]
   if @neighbor(-1, 0).key != @key
     g.push '<line y2="10" stroke="black" stroke-width="2" stroke-linecap="round"/>'
   if @neighbor(0, -1).key != @key
     g.push '<line x2="10" stroke="black" stroke-width="2" stroke-linecap="round"/>'
-  if @neighbor(+1, 0).key in [null, undefined, ' ']
+  if @neighbor(+1, 0).key in [null, undefined, '', ' ']
     g.push '<line x1="10" x2="10" y2="10" stroke="black" stroke-width="2" stroke-linecap="round"/>'
-  if @neighbor(0, +1).key in [null, undefined, ' ']
+  if @neighbor(0, +1).key in [null, undefined, '', ' ']
     g.push '<line y1="10" y2="10" x2="10" stroke="black" stroke-width="2" stroke-linecap="round"/>'
   """
     <symbol viewBox="0 0 10 10">
@@ -20,11 +20,19 @@ pixel = (fill) -> ->
 # colors based on "standard color scheme"
 # [https://en.wikipedia.org/wiki/Tetris#Game_pieces] e.g. from
 # Tetris 99, but with different saturation and lightness */
-I: pixel 'hsl(180,75%,50%)' # cyan
-O: pixel 'hsl(60 ,75%,50%)' # yellow
-S: pixel 'hsl(120,75%,50%)' # green
-Z: pixel 'hsl(0  ,75%,50%)' # red
-T: pixel 'hsl(280,75%,50%)' # purple
-L: pixel 'hsl(40 ,75%,50%)' # orange
-J: pixel 'hsl(240,75%,50%)' # blue
-' ': '<svg viewBox="0 0 10 10"></svg>'
+tiles =
+  I: pixel 'hsl(180,75%,50%)' # cyan
+  O: pixel 'hsl(60 ,75%,50%)' # yellow
+  S: pixel 'hsl(120,75%,50%)' # green
+  Z: pixel 'hsl(0  ,75%,50%)' # red
+  T: pixel 'hsl(280,75%,50%)' # purple
+  L: pixel 'hsl(40 ,75%,50%)' # orange
+  J: pixel 'hsl(240,75%,50%)' # blue
+  ' ': '<svg viewBox="0 0 10 10"></svg>'
+
+# Monotype ASCII files use these characters as unique piece-instance IDs.
+# Keeping different IDs preserves piece boundaries in diagnostic SVGs.
+tiles[id] = pixel '#bbb' for id in '0123456789abcdefghijklmnopqrstuvwxyz'
+tiles[''] = tiles[' ']
+
+export default tiles

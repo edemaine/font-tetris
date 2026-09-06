@@ -92,13 +92,13 @@ sync = (myAnim) -> new Promise (done) ->
   else
     simulate()
 
-animate = (group, glyph, state) ->
+animate = (group, glyph, state) =>
+  font = window.fonts[state.font] ? window.fonts['7']
   rotate = state.rotate
   rotate = false if state.puzzle
   myRound = round
   myAnim = anims.length
-  numAnim = 1
-  numAnim = glyph.order.length if state.puzzle
+  numAnim = if state.puzzle then glyph.placements.length else 1
   updateSpeed state.speed
   for i in [0...numAnim]
     anims.push
@@ -107,13 +107,14 @@ animate = (group, glyph, state) ->
   loop
     puzzleY = glyph.height - 3
     jobs = []
-    #for pieceName, pieceIndex in glyph.order
-    for pieceName, pieceIndex in orderLetter glyph
-      angle = glyph[pieceName].r
+    for placementIndex, pieceIndex in orderLetter glyph
+      placement = glyph.placements[placementIndex]
+      pieceName = font.pieceType ? placement.type
+      angle = placement.r
       angle = -90 if angle == 270
       startAngle = (1 - rotate) * angle
       if state.puzzle
-        startX = glyph[pieceName].tx
+        startX = placement.tx
         startY = puzzleY
       else
         startX = Math.floor glyph.width / 2 - 1
@@ -125,8 +126,8 @@ animate = (group, glyph, state) ->
         translateX: startX
         translateY: startY
       if state.puzzle
-        jobs.push do (pieceIndex, startY, polygon, transform) ->
-          for y in [startY..glyph[pieceName].ty]
+        jobs.push do (pieceIndex, startY, polygon, transform, placement) =>
+          for y in [startY..placement.ty]
             await sleep vertDelay / speed, myAnim + pieceIndex unless y == startY
             return unless round == myRound
             transform.translateY = y
@@ -148,12 +149,12 @@ animate = (group, glyph, state) ->
             return unless round == myRound
             transform.rotate = a
             polygon.transform transform
-        for x in [startX..glyph[pieceName].tx]
+        for x in [startX..placement.tx]
           await sleep horizDelay / speed, myAnim unless x == startX
           return unless round == myRound
           transform.translateX = x
           polygon.transform transform
-        for y in [startY..glyph[pieceName].ty]
+        for y in [startY..placement.ty]
           await sleep vertDelay / speed, myAnim unless y == startY
           return unless round == myRound
           transform.translateY = y
@@ -210,44 +211,43 @@ drawPiece = (group, piece, pieceName, state, transform) ->
 
 orderLetter = (glyph) ->
   order = []
-  for which in [0...7]
+  for which in [0...glyph.placements.length]
     options = []
-    for pieceName, deps of glyph.partial when pieceName not in order
-      droppable = true
-      for dep in deps
-        if dep not in order
-          droppable = false
-      if droppable
-        options.push pieceName
+    for placement, placementIndex in glyph.placements when placementIndex not in order
+      if placement.deps.every (dep) => dep in order
+        options.push placementIndex
     if options.length
       order.push options[Math.floor Math.random() * options.length]
     else
-      console.warn "Couldn't order #{letter}: #{order}"
+      console.warn "Couldn't order glyph: #{order}"
+      break
   order
 
-drawLetter = (char, svg, state) ->
+drawLetter = (char, svg, state) =>
+  font = window.fonts[state.font] ? window.fonts['7']
   group = svg.group()
-  glyph = window.font[char]
+  glyph = font.glyphs[char]
   y = 0
 
   drawBase group, glyph, (if state.puzzle and not state.anim then -5),
     if state.puzzle then baseOutsetPuzzle else baseOutset
   if state.anim
-    animate.call @, group, glyph, state
+    animate group, glyph, state
     if state.puzzle
-      y = -4 * glyph.order.length + glyph.height
+      y = -4 * glyph.placements.length + glyph.height
   else
-    for pieceName in glyph.order
+    for placement in glyph.placements
+      pieceName = font.pieceType ? placement.type
       piece = window.pieces[pieceName]
       drawPiece group, piece, pieceName, state,
-        rotate: glyph[pieceName].r
+        rotate: placement.r
         origin: piece.center
-        translateX: glyph[pieceName].tx
+        translateX: placement.tx
         translateY:
           if state.puzzle
             y
           else
-            glyph[pieceName].ty
+            placement.ty
       y -= 4 if state.puzzle
 
   group: group
@@ -275,7 +275,7 @@ updateText = (changed) ->
   ## Allow GIF when animating, unless currently downloading
   statusGIF state.anim
   recording = null unless changed.recording
-  return unless changed.text or changed.anim or changed.recording or changed.rotate or changed.puzzle or changed.grid or changed.center
+  return unless changed.text or changed.font or changed.anim or changed.recording or changed.rotate or changed.puzzle or changed.grid or changed.center
   round++
   waiters = waiting
   waiter() for waiter in waiters  # clear waiters
@@ -285,6 +285,7 @@ updateText = (changed) ->
   waiting = []
 
   svg.clear()
+  font = window.fonts[state.font] ? window.fonts['7']
   y = 0
   xmax = 0
   for line in state.text.split '\n'
@@ -294,9 +295,9 @@ updateText = (changed) ->
     row = []
     for char, c in line
       char = char.toUpperCase()
-      if char of window.font
+      if char of font.glyphs
         x += charKern state unless c == 0
-        letter = drawLetter.call @, char, svg, state
+        letter = drawLetter char, svg, state
         letter.group.translate x - letter.x, y - letter.y
         row.push letter
         x += letter.width
@@ -367,7 +368,7 @@ window?.onload = ->
   .width '100%'
   .height '100%'
   (furls = new Furls())
-  .addInputs '#data input, #data textarea'
+  .addInputs '#data input, #data textarea, #data select'
   .configInput 'text',
     encode: rot47 = (s) ->
       return s unless furls.get 'rot'

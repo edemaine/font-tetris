@@ -5,7 +5,7 @@ html
     link(rel="icon", href="favicon.svg", type="image/svg+xml", sizes="any")
     script(type="text/javascript", src="node_modules/@svgdotjs/svg.js/dist/svg.min.js")
     script(type="text/javascript", src="node_modules/furls/furls.js")
-    script(type="text/javascript", src="font7.js")
+    script(type="text/javascript", src="fonts.js")
     script(type="text/javascript", src="pieces.js")
     script(type="text/javascript", src="index.js")
     script(type="text/javascript").
@@ -74,6 +74,17 @@ html
           input#black(type="checkbox")
           label(for="black") Black pieces (dissection puzzle)
         td
+          div(style="margin-bottom: 1em")
+            label(for="font") Font: &nbsp;
+            select#font
+              option(value="7", selected) One of each piece
+              option(value="I") I pieces (light)
+              option(value="I2") I pieces (bold)
+              option(value="J") J pieces
+              option(value="L") L pieces
+              option(value="S") S pieces
+              option(value="T") T pieces
+              option(value="Z") Z pieces
           input#grid(type="checkbox")
           label(for="grid") Grid
           br
@@ -112,8 +123,9 @@ html
       or <a href="https://en.wikipedia.org/wiki/Tetris_Effect">on PS4/PC/VR</a>.
 
     p.noprint.
-      <b>Font design.</b>  Each letter and digit in this typeface is made up of
-      exactly one of each of the Tetris pieces:
+      <b>Font design.</b>  In the default font,
+      each letter and digit is made up of
+      <i>exactly one of each of the Tetris pieces</i>:
       <span id="pieceI"></span> (I),
       <span id="pieceJ"></span> (J),
       <span id="pieceL"></span> (L),
@@ -121,7 +133,8 @@ html
       <span id="pieceS"></span> (S),
       <span id="pieceT"></span> (T), and
       <span id="pieceZ"></span> (Z).
-      Furthermore, the letter is designed so that it can actually be constructed
+      The other selectable fonts use repeated copies of <i>just one piece type</i>.
+      Each glyph is designed so that it can actually be constructed
       by stacking these pieces one at a time and be supported by previous pieces,
       as in Tetris.
       These designs were found by hand, aided by the
@@ -145,7 +158,7 @@ html
       try to guess what the letter is before all the pieces have arrived.
       &bull;
       One final set of puzzles: In the unanimated unpuzzle <b>black-pieces</b> font,
-      try to figure out how one of each Tetris piece perfectly packs that shape.
+      try to figure out how the Tetris pieces perfectly pack that shape.
       (This is the task that BurrTools is very good at.)
 
     p.noprint.
