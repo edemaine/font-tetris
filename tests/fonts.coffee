@@ -106,6 +106,27 @@ test 'gallery glyphs use a fixed scale across heights and fonts', =>
     assert.ok actual.output['allfont.html'].includes "src=\"#{file}.svg\" height=\"#{height}\""
   assert.match actual.output['allfont.html'], /vertical-align: bottom/
 
+test 'legacy half-grid glyphs scale and validate as full-size tetrominoes', =>
+  actual = generate font7:
+    'A.asc': 'IIII'
+    'B.asc': 'IIIIIIII\nIIIIIIII'
+    'C.asc': 'II\nII\nII\nII\nII\nII\nII\nII'
+    'D.asc': ' IIIIIIII\n IIIIIIII'
+  assert.equal actual.error, null
+  assert.deepEqual actual.fonts['7'].glyphs.A, actual.fonts['7'].glyphs.B
+  assert.equal actual.fonts['7'].glyphs.C.height, 4
+  assert.equal actual.fonts['7'].glyphs.C.width, 1
+  assert.equal actual.fonts['7'].glyphs.D.placements[0].tx, 0.5
+  assert.match actual.output['allfont.html'], /src="font7\/B.svg" height="6" class="tall halfgrid"/
+  # Cell count detects the scale, but does not excuse an incorrect shape.
+  invalid = generate font7: {'A.asc': 'IIII\nIIII\nIIII\nIIII'}
+  assert.match invalid.error?.message ? '', /not a rotated I/
+  monotype = generate fontI: {'A.asc': '00000000\n00000000'}
+  assert.match monotype.error?.message ? '', /has 16 cells, expected 4/
+  repository = generate()
+  assert.doesNotMatch repository.warnings.join('\n'), /A1.asc: Piece .*expected 4/
+  assert.match repository.output['allfont.html'], /src="font7\/A1.svg" height="48" class="halfgrid(?: unstable)?"/
+
 test 'all eight alphabets export complete placements and backward dependencies', =>
   actual = generate()
   assert.equal actual.error, null

@@ -96,16 +96,7 @@ for font in fonts
     text = fs.readFileSync pathname, encoding: 'utf8'
     lines = text.split /\r?\n/
     lines.pop() if lines[lines.length-1] == ''
-    heights.add lines.length if best letter
     problems = []
-
-    classes = []
-    if lines.length not in [8, 16]
-      classes.push 'tall'
-    if lines.length > 9
-      classes.push 'halfgrid'
-    # Use the same six pixels per grid cell for every glyph.
-    suffix = " height=\"#{lines.length*6}\""
 
     # Each nonspace character identifies one physical piece instance.  In a
     # monotype font the font supplies its type; otherwise the ID is the type.
@@ -116,6 +107,20 @@ for font in fonts
         instances.get(pieceId).push {i, j}
     pieceIds = Array.from instances.keys()
     problems.push 'Empty glyph' unless pieceIds.length
+
+    # Legacy mixed-font half-grid drawings use 16 small cells per tetromino.
+    # Height alone cannot distinguish them from taller full-grid fonts.
+    halfgrid = not font.pieceType? and pieceIds.length > 0 and
+      pieceIds.every (id) => instances.get(id).length == 16
+    grid = if halfgrid then 2 else 1
+    height = lines.length / grid
+    heights.add height if best letter
+    classes = []
+    classes.push 'tall' if height != 8
+    classes.push 'halfgrid' if halfgrid
+    # Use six pixels per full-size tetromino cell.
+    suffix = " height=\"#{height*6}\""
+
     # Compute vertical precedence constraints between piece instances.
     dependencies = {}
     for pieceId in pieceIds
@@ -149,8 +154,8 @@ for font in fonts
         problems.push "Unknown piece type #{type}"
         continue
       actual = instances.get pieceId
-      unless actual.length == 4
-        problems.push "Piece #{pieceId} has #{actual.length} cells, expected 4"
+      unless actual.length == 4*grid*grid
+        problems.push "Piece #{pieceId} has #{actual.length} cells, expected #{4*grid*grid}"
         continue
       cells = pieceCells[type]
       iDelta = Math.min ...(i for {i} in actual)
@@ -159,12 +164,14 @@ for font in fonts
         iMin = Math.min ...(i for {i} in cells)
         jMin = Math.min ...(j for {j} in cells)
         match = cells.every ({i, j}) =>
-          lines[iDelta+i-iMin]?[jDelta+j-jMin] == pieceId
+          [0...grid].every (di) =>
+            [0...grid].every (dj) =>
+              lines[iDelta+(i-iMin)*grid+di]?[jDelta+(j-jMin)*grid+dj] == pieceId
         if match
           transforms[pieceId] =
             r: rotate
-            tx: jDelta - jMin
-            ty: iDelta - iMin
+            tx: jDelta/grid - jMin
+            ty: iDelta/grid - iMin
           break
         cells = rotateCells type, cells
       problems.push "Piece #{pieceId} is not a rotated #{type}" unless match
@@ -198,8 +205,8 @@ for font in fonts
         }
       glyphs[letter] =
         placements: placements
-        height: lines.length
-        width: Math.max ...(line.trimRight().length for line in lines)
+        height: height
+        width: (Math.max ...(line.trimRight().length for line in lines)) / grid
 
     if classes.length
       suffix += " class=\"#{classes.join ' '}\""
