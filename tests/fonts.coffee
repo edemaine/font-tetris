@@ -309,6 +309,38 @@ test 'row floors align across piece counts and fonts in every rendering mode', =
       for group in groups
         assert.ok group.offsetY + group.floorY + 0.5 <= bounds.y + bounds.height
 
+test 'inline piece images render in both original and repeated help placeholders', =>
+  runtime = source('index.coffee').split('  for pieceName, piece of window.pieces')[1]
+  code = coffee.compile "for pieceName, piece of window.pieces#{runtime}", bare: true
+  targets = [{type: 'I'}, {type: 'I'}, {type: 'I'}, {type: 'L'}, {type: 'L'}]
+  rendered = []
+  vm.runInNewContext code,
+    window: {pieces}
+    document:
+      querySelectorAll: (selector) =>
+        type = selector.match(/\.piece([IJLOSTZ])/)[1]
+        assert.equal selector, ".piece#{type}"
+        targets.filter (target) => target.type == type
+    SVG: =>
+      image = {}
+      svg =
+        addTo: (target) =>
+          image.target = target
+          rendered.push image
+          svg
+        viewbox: => svg
+        width: => svg
+        height: => svg
+        polygon: (polygon) =>
+          image.polygon = polygon
+          svg
+        addClass: (type) => image.type = type
+  assert.equal rendered.length, targets.length
+  for target in targets
+    image = rendered.find (image) => image.target == target
+    assert.equal image.type, target.type
+    assert.equal image.polygon, pieces[target.type].polygon
+
 test 'diagnostic tiles draw all outside edges, including empty-string neighbors', =>
   mapping = source('svgtileset.coffee').replace 'export default tiles', 'tiles'
   tiles = vm.runInNewContext coffee.compile mapping, bare: true

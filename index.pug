@@ -78,13 +78,13 @@ html
             label(for="font") Font: &nbsp;
             select#font
               option(value="7", selected) One of each piece
-              option(value="I") I pieces (light)
-              option(value="I2") I pieces (bold)
-              option(value="J") J pieces
-              option(value="L") L pieces
-              option(value="S") S pieces
-              option(value="T") T pieces
-              option(value="Z") Z pieces
+              option(value="I") ▄▄▄▄ I pieces (light)
+              option(value="I2") ▄▄▄▄ I pieces (bold)
+              option(value="J") █▄▄&ensp; J pieces
+              option(value="L") ▄▄█&ensp; L pieces
+              option(value="S") ▄█▀&ensp; S pieces
+              option(value="T") ▀█▀&ensp; T pieces
+              option(value="Z") ▀█▄&ensp; Z pieces
           input#grid(type="checkbox")
           label(for="grid") Grid
           br
@@ -126,13 +126,13 @@ html
       <b>Font design.</b>  In the default font,
       each letter and digit is made up of
       <i>exactly one of each of the Tetris pieces</i>:
-      <span id="pieceI"></span> (I),
-      <span id="pieceJ"></span> (J),
-      <span id="pieceL"></span> (L),
-      <span id="pieceO"></span> (O),
-      <span id="pieceS"></span> (S),
-      <span id="pieceT"></span> (T), and
-      <span id="pieceZ"></span> (Z).
+      <span class="pieceI"></span> (I),
+      <span class="pieceJ"></span> (J),
+      <span class="pieceL"></span> (L),
+      <span class="pieceO"></span> (O),
+      <span class="pieceS"></span> (S),
+      <span class="pieceT"></span> (T), and
+      <span class="pieceZ"></span> (Z).
       The other selectable fonts use repeated copies of <i>just one piece type</i>.
       Each glyph is designed so that it can actually be constructed
       by stacking these pieces one at a time and be supported by previous pieces,
@@ -163,11 +163,16 @@ html
 
     p.noprint.
       <b>Multiple fonts.</b>  You can switch between different fonts in the
-      middle of the text, using the special codes <code>[7]</code>,
-      <code>[I]</code> (I light), <code>[I2]</code> (I bold),
-      <code>[J]</code>, <code>[L]</code>, <code>[S]</code>, <code>[T]</code>,
-      and <code>[Z]</code>.
-      This works especially well with different fonts on different lines.
+      middle of the text, using these special codes:
+      <code>[7]</code> for one of each piece,
+      <code>[I]</code> for <span class="pieceI" role="img" aria-label="I piece"></span> (light),
+      <code>[I2]</code> for <span class="pieceI" role="img" aria-label="I piece"></span> (bold),
+      <code>[J]</code> for <span class="pieceJ" role="img" aria-label="J piece"></span>,
+      <code>[L]</code> for <span class="pieceL" role="img" aria-label="L piece"></span>,
+      <code>[S]</code> for <span class="pieceS" role="img" aria-label="S piece"></span>,
+      <code>[T]</code> for <span class="pieceT" role="img" aria-label="T piece"></span>,
+      and <code>[Z]</code> for <span class="pieceZ" role="img" aria-label="Z piece"></span>.
+      Using different fonts on different lines works especially well.
       For example, <a href="?text=%5B7%5Dabcdefghijklmnopqrstuvwxyz%0A%5BI%5Dabcdefghijklmnopqrstuvwxyz%0A%5BI2%5Dabcdefghijklmnopqrstuvwxyz%0A%5BJ%5Dabcdefghijklmnopqrstuvwxyz%0A%5BL%5Dabcdefghijklmnopqrstuvwxyz%0A%5BS%5Dabcdefghijklmnopqrstuvwxyz%0A%5BT%5Dabcdefghijklmnopqrstuvwxyz%0A%5BZ%5Dabcdefghijklmnopqrstuvwxyz">here are all the fonts at once</a>.
 
     p.noprint.
@@ -191,18 +196,22 @@ html
       and most recently with
       <a href="https://erikdemaine.org/papers/TetrisOnePiece_FUN2026/">just one piece type</a>.
       The latter is the inspiration for the one-piece-type fonts.
-      In particular, we have hardness for every individual tetromino except O
-      (the square), so we have not yet designed a font with just Os.
+      In particular, we proved NP-hardness for every individual tetromino except
+      <span class="pieceO" role="img" aria-label="O piece"></span>,
+      so we have not yet designed a font with just
+      <span class="pieceO" role="img" aria-label="O pieces"></span>s.
 
     p.noprint.
-      <b>Acknowledgments.</b>  This font was inspired by a collaboration with
-      Alex Streif and Kate Jones of
+      <b>Acknowledgments.</b>  The 7-piece font was inspired by a collaboration
+      with Alex Streif and Kate Jones of
       <a href="http://www.gamepuzzles.com/">Kadon Enterprises</a>
       during <a href="https://bridgesmathart.org/bridges-2017/">BRIDGES 2017</a>,
       where we started designing a font using just 5 pieces:
       the &ldquo;<a href="https://en.wikipedia.org/wiki/Tetromino">free
-      tetrominoes</a>&rdquo; where S is the same piece as Z and J is the same
-      piece as L.
+      tetrominoes</a>&rdquo; where <span class="pieceS" role="img" aria-label="S piece"></span>
+      is the same piece as <span class="pieceZ" role="img" aria-label="Z piece"></span>
+      and <span class="pieceJ" role="img" aria-label="J piece"></span>
+      is the same piece as <span class="pieceL" role="img" aria-label="L piece"></span>.
       Relatedly, Kate Jones designed <a href="kadon_fonts.jpg">other polyomino
       fonts included in some Kadon manuals</a>.
       By contrast, this typeface aims closer to the rules of Tetris,
