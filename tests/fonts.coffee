@@ -105,6 +105,7 @@ test 'gallery glyphs use a fixed scale across heights and fonts', =>
   for [file, height] in [['fontI/A', 48], ['fontI/B', 60], ['fontI/A1', 96], ['fontI2/A', 72]]
     assert.ok actual.output['allfont.html'].includes "src=\"#{file}.svg\" height=\"#{height}\""
   assert.match actual.output['allfont.html'], /vertical-align: bottom/
+  assert.doesNotMatch actual.output['allfont.html'], /<img[^>]*class="[^"]*\b(tall|halfgrid)\b/
 
 test 'legacy half-grid glyphs scale and validate as full-size tetrominoes', =>
   actual = generate font7:

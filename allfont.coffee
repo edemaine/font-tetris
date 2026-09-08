@@ -116,8 +116,9 @@ for font in fonts
     height = lines.length / grid
     heights.add height if best letter
     classes = []
-    classes.push 'tall' if height != 8
-    classes.push 'halfgrid' if halfgrid
+    if font.id == '7'
+      classes.push 'tall' if height != 8
+      classes.push 'halfgrid' if halfgrid
     # Use six pixels per full-size tetromino cell.
     suffix = " height=\"#{height*6}\""
 
