@@ -72,14 +72,29 @@ test 'invalid alternatives are diagnostic only', =>
 test 'stability warnings flag unsupported pieces, not disconnected components', =>
   unsupported = generate fontI: {'A.asc': '0000\n\n1111'}
   assert.match unsupported.warnings.join('\n'), /Unsupported pieces 0/
-  assert.equal unsupported.warnings.length, 1
+  assert.equal unsupported.warnings.length, 2
   detached = generate fontI: {'A.asc': '0000  1111'}
   assert.equal detached.error, null
   assert.deepEqual detached.warnings, []
   assert.doesNotMatch detached.output['allfont.html'], /disconnected/i
   corner = generate fontI: {'A.asc': '0000\n    1111'}
-  assert.equal corner.warnings.length, 1
+  assert.equal corner.warnings.length, 2
   assert.match corner.warnings[0], /Unsupported pieces 0/
+
+test 'final unsupported-piece warning summarizes selected glyphs only', =>
+  actual = generate fontI:
+    'A.asc': '0000\n\n1111'
+    'B1.asc': '0000\n\n1111'
+  assert.equal actual.error, null
+  summary = actual.warnings[actual.warnings.length-1]
+  assert.match summary, /\*\*\* WARNING: UNSUPPORTED PIECES IN SELECTED GLYPHS \*\*\*/
+  assert.match summary, /A\.asc: Unsupported pieces 0/
+  assert.doesNotMatch summary, /B1\.asc/
+  alternatives = generate fontI:
+    'A.asc': '0000'
+    'B1.asc': '0000\n\n1111'
+  assert.equal alternatives.warnings.length, 1
+  assert.doesNotMatch alternatives.warnings[0], /SELECTED GLYPHS/
 
 test 'selected heights are unique, numerically sorted, and exclude alternatives', =>
   sources = fontI:

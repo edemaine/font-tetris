@@ -62,6 +62,7 @@ symbols =
 best = (name) -> name.length == 1
 fontData = {}
 errors = []
+selectedUnsupported = []
 
 for font in fonts
   heights = new Set
@@ -193,7 +194,9 @@ for font in fonts
         stable.add pieceId if supported
       if stable.size != pieceIds.length
         classes.push 'unstable'
-        console.warn "#{pathname}: Unsupported pieces #{(id for id in pieceIds when not stable.has id).join ', '}"
+        message = "#{pathname}: Unsupported pieces #{(id for id in pieceIds when not stable.has id).join ', '}"
+        console.warn message
+        selectedUnsupported.push message if best letter
 
     if best(letter) and not problems.length
       index = {}
@@ -238,5 +241,7 @@ for font in fonts
 for part, i in out
   out[i] = part.join '\n' unless typeof part == 'string'
 fs.writeFileSync 'allfont.html', out.join('\n')+'\n', encoding: 'utf8'
+if selectedUnsupported.length
+  console.warn "\n*** WARNING: UNSUPPORTED PIECES IN SELECTED GLYPHS ***\n#{selectedUnsupported.join '\n'}\n*** END SELECTED-GLYPH WARNINGS ***\n"
 throw new Error "Invalid selected glyphs:\n#{errors.join '\n'}" if errors.length
 fs.writeFileSync 'fonts.js', "var fonts = #{JSON.stringify fontData}", encoding: 'utf8'
