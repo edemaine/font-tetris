@@ -254,14 +254,8 @@ drawLetter = (char, svg, state) =>
   x: 0
   y: y
   width: glyph.width
-  height:
-    if state.puzzle
-      if state.anim
-        -y + glyph.height - 3
-      else
-        -y
-    else
-      glyph.height
+  # Measure from the layout top to the floor, including puzzle-mode offsets.
+  height: glyph.height - y - (if state.puzzle and not state.anim then 5 else 0)
 
 updateLink = (state) ->
   if (link = document.getElementById 'link') and
@@ -315,9 +309,9 @@ updateText = (changed) ->
         else if char == ' '
           x += charSpace state
         c++
-    ## Bottom alignment
-    #for letter in row
-    #  letter.group.dy dy - letter.height
+    ## Align floors, even when glyph heights or puzzle piece counts differ.
+    for letter in row
+      letter.group.dy dy - letter.height
     y += dy + lineKern state
   svg.viewbox
     x: -margin

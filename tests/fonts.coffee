@@ -236,6 +236,7 @@ test 'inline font switches preserve spacing, dropdown state, and animation snaps
           translate: (x, y) =>
             entry.x = x
             entry.y = y
+          dy: (offset) => entry.y += offset
         x: 0
         y: 0
         width: glyph.width
@@ -262,6 +263,51 @@ test 'inline font switches preserve spacing, dropdown state, and animation snaps
   assert.equal render('[T][I2]').drawn.length, 0
   assert.equal render('').drawn.length, 0
   assert.equal render('A', font: 'invalid').drawn.length, 1
+
+test 'row floors align across piece counts and fonts in every rendering mode', =>
+  fonts = generate().fonts
+  code = coffee.compile source('index.coffee'), bare: true
+  assert.ok new Set(Object.values(fonts.I.glyphs).map (glyph) => glyph.placements.length).size > 1
+  for puzzle in [false, true]
+    for anim in [false, true]
+      groups = []
+      bounds = null
+      context = {window: {fonts, pieces}, document: {getElementById: => null}}
+      vm.runInNewContext code, context
+      # Keep real drawLetter/drawBase/layout; bypass asynchronous piece motion.
+      context.animate = =>
+      context.drawPiece = =>
+      context.statusGIF = =>
+      context.svg =
+        clear: =>
+        viewbox: (box) => bounds = box
+        group: =>
+          group =
+            offsetY: 0
+            translate: (x, y) => group.offsetY = y
+            dy: (offset) => group.offsetY += offset
+            rect: =>
+              rect =
+                x: => rect
+                y: (y) =>
+                  group.floorY = y
+                  rect
+                addClass: => rect
+          groups.push group
+          group
+      state =
+        text: '[I]ABCDEFGHIJKLMNOPQRSTUVWXYZ[I2]A[T]B\n[7]A[L]B[S]C'
+        font: '7'
+        puzzle: puzzle
+        anim: anim
+      context.updateText.call {getState: => state}, {text: true}
+      assert.equal groups.length, 31
+      floors = (group.offsetY + group.floorY for group in groups)
+      assert.equal new Set(floors[...28]).size, 1, "first row: puzzle=#{puzzle}, anim=#{anim}"
+      assert.equal new Set(floors[28..]).size, 1, "second row: puzzle=#{puzzle}, anim=#{anim}"
+      assert.ok floors[28] > floors[0]
+      for group in groups
+        assert.ok group.offsetY + group.floorY + 0.5 <= bounds.y + bounds.height
 
 test 'diagnostic tiles draw all outside edges, including empty-string neighbors', =>
   mapping = source('svgtileset.coffee').replace 'export default tiles', 'tiles'
