@@ -293,18 +293,28 @@ updateText = (changed) ->
     x = 0
     dy = 0
     row = []
-    for char, c in line
-      char = char.toUpperCase()
-      if char of font.glyphs
-        x += charKern state unless c == 0
-        letter = drawLetter char, svg, state
-        letter.group.translate x - letter.x, y - letter.y
-        row.push letter
-        x += letter.width
-        xmax = Math.max xmax, x
-        dy = Math.max dy, letter.height
-      else if char == ' '
-        x += charSpace state
+    c = 0
+    for token in line.match(/\[[^\]]*\]|./g) ? []
+      if token.length > 1
+        id = token[1...-1].toUpperCase()
+        if id of window.fonts
+          font = window.fonts[id]
+          # Keep each glyph's animation state intact when later tags switch fonts.
+          state = {...state, font: id}
+          continue
+      for char in token
+        char = char.toUpperCase()
+        if char of font.glyphs
+          x += charKern state unless c == 0
+          letter = drawLetter char, svg, state
+          letter.group.translate x - letter.x, y - letter.y
+          row.push letter
+          x += letter.width
+          xmax = Math.max xmax, x
+          dy = Math.max dy, letter.height
+        else if char == ' '
+          x += charSpace state
+        c++
     ## Bottom alignment
     #for letter in row
     #  letter.group.dy dy - letter.height

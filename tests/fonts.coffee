@@ -211,6 +211,58 @@ test 'randomized runtime order respects dependencies', =>
           for dep in glyph.placements[index].deps
             assert.ok order.indexOf(dep) < position, "#{id}/#{char}"
 
+test 'inline font switches preserve spacing, dropdown state, and animation snapshots', =>
+  runtime = source('index.coffee').split('updateText = ')[1].split('\n## Based on meouw')[0]
+  code = coffee.compile "waiting = []\nround = 0\nupdateText = #{runtime}\nupdateText", bare: true
+  fonts = generate().fonts
+  render = (text, options = {}) =>
+    state = Object.freeze {text, font: '7', anim: false, puzzle: false, ...options}
+    drawn = []
+    context =
+      window: {fonts}
+      updateLink: =>
+      statusGIF: =>
+      margin: 1
+      headRoom: 3
+      charKern: => 1
+      charSpace: => 3
+      lineKern: => 2
+      svg: {clear: =>, viewbox: =>}
+      drawLetter: (char, svg, snapshot) =>
+        entry = {char, state: snapshot}
+        drawn.push entry
+        glyph = (fonts[snapshot.font] ? fonts['7']).glyphs[char]
+        group:
+          translate: (x, y) =>
+            entry.x = x
+            entry.y = y
+        x: 0
+        y: 0
+        width: glyph.width
+        height: glyph.height
+    update = vm.runInNewContext code, context
+    update.call {getState: => state}, {text: true}
+    {state, drawn}
+  for options in [{}, {anim: true}, {anim: true, puzzle: true}]
+    {state, drawn} = render 'A[T]B[i2]C\nD[7]1', options
+    assert.deepEqual (entry.char for entry in drawn), ['A', 'B', 'C', 'D', '1']
+    assert.deepEqual (entry.state.font for entry in drawn), ['7', 'T', 'I2', 'I2', '7']
+    assert.equal state.font, '7'
+    for entry in drawn
+      assert.equal entry.state.anim, state.anim
+      assert.equal entry.state.puzzle, state.puzzle
+  tagged = render '[T]A[T][T]B'
+  plain = render 'AB', font: 'T'
+  assert.deepEqual (entry.x for entry in tagged.drawn), (entry.x for entry in plain.drawn)
+  spaced = render '[T]A [I2]B'
+  assert.equal spaced.drawn[1].x, fonts.T.glyphs.A.width + 4
+  assert.deepEqual (entry.char for entry in render('[T]1[7]1').drawn), ['1']
+  assert.deepEqual (entry.char for entry in render('[NOPE]A').drawn), ['N', 'O', 'P', 'E', 'A']
+  assert.deepEqual (entry.char for entry in render('[T').drawn), ['T']
+  assert.equal render('[T][I2]').drawn.length, 0
+  assert.equal render('').drawn.length, 0
+  assert.equal render('A', font: 'invalid').drawn.length, 1
+
 test 'diagnostic tiles draw all outside edges, including empty-string neighbors', =>
   mapping = source('svgtileset.coffee').replace 'export default tiles', 'tiles'
   tiles = vm.runInNewContext coffee.compile mapping, bare: true
